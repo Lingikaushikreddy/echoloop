@@ -6,6 +6,8 @@ Three stars are hidden across the gate, the meadow, and the summit. The summit s
 
 The original three rooms are still here. In a room, R rewinds time and the echo repeats the attempt. In the Clocklands, R does not rewind: the past stays where you left it.
 
+![The Clocklands. The line on the ground is the trail your echo will walk.](docs/clocklands.png)
+
 > Status: the Clocklands are playable, and rooms 1–3 still are. Hazards and enemies come next (see `docs/superpowers/specs/2026-10-01-echoloop-design.md`).
 
 ## Controls

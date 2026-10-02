@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/hud.gd" id="1_script"]
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_script")
+
+[node name="Title" type="Label" parent="."]
+offset_left = 6.0
+offset_top = 3.0
+offset_right = 200.0
+offset_bottom = 17.0
+theme_override_font_sizes/font_size = 10
+
+[node name="Time" type="Label" parent="."]
+offset_left = 200.0
+offset_top = 3.0
+offset_right = 280.0
+offset_bottom = 17.0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="Echoes" type="Label" parent="."]
+offset_left = 374.0
+offset_top = 3.0
+offset_right = 474.0
+offset_bottom = 17.0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 2
+
+[node name="Message" type="Label" parent="."]
+offset_left = 30.0
+offset_top = 110.0
+offset_right = 450.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Hint" type="Label" parent="."]
+offset_left = 6.0
+offset_top = 252.0
+offset_right = 474.0
+offset_bottom = 268.0
+theme_override_font_sizes/font_size = 9
+horizontal_alignment = 1

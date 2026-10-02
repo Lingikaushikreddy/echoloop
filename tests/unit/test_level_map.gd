@@ -66,3 +66,15 @@ func test_reports_empty_map() -> void:
 func test_cell_floor_is_bottom_centre() -> void:
 	assert_eq(LevelMap.cell_floor(Vector2i(2, 3)), Vector2(45, 72))
 	assert_eq(LevelMap.cell_center(Vector2i(2, 3)), Vector2(45, 63))
+
+
+func test_parses_stars_and_trailheads() -> void:
+	var map := LevelMap.parse("##S.*@E#")
+	assert_true(map.is_valid(), str(map.errors))
+	assert_eq(map.stars, [Vector2i(4, 0)])
+	assert_eq(map.anchors, [Vector2i(5, 0)])
+
+
+func test_feet_land_back_in_the_same_cell() -> void:
+	var cell := Vector2i(8, 16)
+	assert_eq(LevelMap.cell_at_feet(LevelMap.cell_floor(cell)), cell)

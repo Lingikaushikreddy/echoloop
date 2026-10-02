@@ -259,3 +259,17 @@ These were made while writing Plan 1 (`docs/superpowers/plans/2026-10-01-echoloo
 | Ship target | itch.io browser build | One-click play, standard home for Godot games |
 | Assets | Kenney CC0 | Finished look, no licensing risk |
 | Learning mode | Claude builds; learning note + exercise per milestone | Owner's choice |
+
+## 12. Open world (2026-10-02)
+
+The game opens on the Clocklands (`world/clocklands.tscn`), one continuous text map instead of a stack of rooms. Rooms 1–3 stay as the original chambers and keep the rewind loop.
+
+Rules that differ from a room:
+
+- **Plant (R)** stores the trail since the last trailhead, plant, or respawn, spawns an echo that replays it and freezes at the end, and starts a new trail. The player does not move.
+- **Trailhead (`@`, and the spawn)** is the return point. Entering one also starts a fresh trail, so an echo does not have to replay the whole meadow.
+- **Retry (T) and death** send the player to the trailhead. Planted echoes and collected stars stay.
+- **Stars (`*`)** are collected by the live player and are not reset by death. The exit completes the world only when every star has been found.
+- **Undo** removes the newest echo and leaves the player in place.
+
+The map is still one character per tile, parsed by `LevelMap`. `*` and `@` are optional, so the original rooms do not change. A solution test steers a real player through both echo puzzles (the gate and the summit) and proves the summit cannot be jumped with no echo.

@@ -1,6 +1,7 @@
 extends Node
 ## Global game state, loaded before any scene (Project Settings → Autoload).
 
+## The original chambers. The game opens on the Clocklands; these stay playable on their own.
 const LEVELS: Array[String] = [
 	"res://levels/level_01.tscn",
 	"res://levels/level_02.tscn",

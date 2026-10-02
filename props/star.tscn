@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://props/star.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_star"]
+size = Vector2(14, 16)
+
+[node name="Star" type="Area2D"]
+collision_layer = 64
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_script")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_star")
+
+[node name="Gem" type="Polygon2D" parent="."]
+color = Color(0.98, 0.82, 0.22, 1)
+polygon = PackedVector2Array(0, -18, 5, -10, 0, -4, -5, -10)

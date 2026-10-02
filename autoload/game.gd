@@ -1,6 +1,7 @@
 extends Node
 ## Global game state, loaded before any scene (Project Settings → Autoload).
 
+## The original chambers. The game opens on the Clocklands; these stay playable on their own.
 const LEVELS: Array[String] = [
 	"res://levels/level_01.tscn",
 	"res://levels/level_02.tscn",
@@ -8,8 +9,22 @@ const LEVELS: Array[String] = [
 ]
 
 
+## Fewest echoes used to open the summit this session, or -1 before the first clear.
+var best_echoes := -1
+## True once a clear included the island star.
+var found_island := false
+
+
 func _ready() -> void:
 	InputActions.install()
+
+
+## Remembers a Clocklands clear so the next walk has something to beat.
+func note_clocklands(echoes: int, island: bool) -> void:
+	if best_echoes < 0 or echoes < best_echoes:
+		best_echoes = echoes
+	if island:
+		found_island = true
 
 
 ## The level after `path`. After the last level, or for an unknown path, the first.

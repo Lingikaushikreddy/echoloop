@@ -8,6 +8,7 @@ var _message_ticks_left := 0
 
 @onready var title_label: Label = $Title
 @onready var time_label: Label = $Time
+@onready var stars_label: Label = $Stars
 @onready var echoes_label: Label = $Echoes
 @onready var message_label: Label = $Message
 @onready var hint_label: Label = $Hint
@@ -23,6 +24,15 @@ func set_hint(text: String) -> void:
 
 func set_echoes(used: int, maximum: int) -> void:
 	echoes_label.text = "Echoes %d/%d" % [used, maximum]
+
+
+## Rooms leave this blank and use the clock. The open world leaves the clock blank.
+## `compass` is a short pull, such as "west" or "above", toward a star still out there.
+func set_stars(found: int, total: int, compass := "") -> void:
+	if compass == "":
+		stars_label.text = "Stars %d/%d" % [found, total]
+	else:
+		stars_label.text = "Stars %d/%d  %s" % [found, total, compass]
 
 
 func set_time(tick: int) -> void:

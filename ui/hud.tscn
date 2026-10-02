@@ -20,6 +20,14 @@ offset_bottom = 17.0
 theme_override_font_sizes/font_size = 10
 horizontal_alignment = 1
 
+[node name="Stars" type="Label" parent="."]
+offset_left = 168.0
+offset_top = 3.0
+offset_right = 368.0
+offset_bottom = 17.0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
 [node name="Echoes" type="Label" parent="."]
 offset_left = 374.0
 offset_top = 3.0

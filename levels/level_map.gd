@@ -6,6 +6,8 @@ extends RefCounted
 ##   S  player spawn     E  exit flag          (exactly one of each)
 ##   a-d  pressure switch (at most one per letter)
 ##   A-D  door tile, opened by the switch with the same letter
+##   *  star             +  secret star        (any number; + does not gate an exit)
+##   @  trailhead                             (any number, open world only)
 ##
 ## Every row must be the same width. Problems are collected in `errors` instead
 ## of crashing, so a broken level says what is wrong.
@@ -18,6 +20,9 @@ var spawn := Vector2i(-1, -1)
 var exit := Vector2i(-1, -1)
 var switches := {}  ## letter -> Vector2i
 var doors := {}  ## letter -> Array of Vector2i
+var stars: Array[Vector2i] = []
+var secrets: Array[Vector2i] = []
+var anchors: Array[Vector2i] = []
 var errors := PackedStringArray()
 
 
@@ -52,6 +57,12 @@ static func parse(text: String) -> LevelMap:
 					spawns.append(cell)
 				"E":
 					exits.append(cell)
+				"*":
+					result.stars.append(cell)
+				"+":
+					result.secrets.append(cell)
+				"@":
+					result.anchors.append(cell)
 				_:
 					if ch >= "a" and ch <= "d":
 						if result.switches.has(ch):
@@ -94,3 +105,9 @@ static func cell_floor(cell: Vector2i) -> Vector2:
 
 static func cell_center(cell: Vector2i) -> Vector2:
 	return Vector2(cell.x * TILE + TILE / 2.0, cell.y * TILE + TILE / 2.0)
+
+
+## Inverse of `cell_floor`: the cell whose floor the feet are standing on.
+## Feet sit on the bottom edge of that cell, so the y test uses a 1 px bias.
+static func cell_at_feet(feet: Vector2) -> Vector2i:
+	return Vector2i(floori(feet.x / float(TILE)), floori((feet.y - 1.0) / float(TILE)))

@@ -28,7 +28,7 @@ const REGIONS: Array[Dictionary] = [
 	{
 		"x0": 21, "x1": 55,
 		"title": "The Meadow",
-		"blurb": "The island overhead is scenery. A cyan marker sets your trailhead. The summit is east.",
+		"blurb": "The island is a second climb, if you can spare two echoes. The summit is east.",
 	},
 	{
 		"x0": 56, "x1": 80,
@@ -48,7 +48,12 @@ var found_stars: Array[Vector2i] = []
 var _death_ticks_left := -1
 var _trail_cell := Vector2i(-999, -999)
 var _ages := {}
+var _trails := {}
 var _seen_regions := {}
+var _mentioned_island := false
+var _met_yourself := false
+
+var trails: Node2D
 
 @onready var terrain: TileMapLayer = $Terrain
 @onready var props: Node2D = $Props
@@ -67,6 +72,22 @@ func star_total() -> int:
 	return 0 if level_map == null else level_map.stars.size()
 
 
+## Stars the summit asks for. The island star is not one of them.
+func required_found() -> int:
+	var found := 0
+	for cell in level_map.stars:
+		if found_stars.has(cell):
+			found += 1
+	return found
+
+
+func secret_found() -> bool:
+	for cell in level_map.secrets:
+		if found_stars.has(cell):
+			return true
+	return false
+
+
 func _ready() -> void:
 	level_map = LevelMap.parse(map)
 	if not level_map.is_valid():
@@ -75,6 +96,10 @@ func _ready() -> void:
 	_build_sky()
 	_build_terrain()
 	_build_props()
+	trails = Node2D.new()
+	trails.name = "Trails"
+	trails.z_index = 2
+	add_child(trails)
 	anchor_point = LevelMap.cell_floor(level_map.spawn)
 	_trail_cell = level_map.spawn
 	player.kill_y = level_map.size.y * LevelMap.TILE + KILL_MARGIN
@@ -85,8 +110,8 @@ func _ready() -> void:
 	_setup_camera()
 	player.respawn(anchor_point)
 	player.recorder.start()
-	hud.set_hint("R plants an echo and you keep walking. T returns to the trailhead. Backspace forgets one.")
-	hud.set_stars(0, star_total())
+	hud.set_hint("R leaves you on the trail. The line shows where they will walk.")
+	_refresh_stars()
 	_seen_regions[_region_at(level_map.spawn.x).title] = true
 	_update_region()
 
@@ -118,8 +143,10 @@ func plant_echo() -> bool:
 	echo.setup(loop.recordings[-1], loop.recordings.size() - 1, player)
 	echoes_root.add_child(echo)
 	_ages[echo] = 0
+	_trails[echo] = _draw_trail(loop.recordings[-1])
 	player.recorder.start()
-	hud.show_message("Echo planted. It will walk that trail and wait.")
+	hud.show_message("You leave yourself here. Follow the line.")
+	_refresh_stars()
 	return true
 
 
@@ -129,9 +156,14 @@ func undo_echo() -> bool:
 		return false
 	var last := echoes_root.get_child(-1)
 	_ages.erase(last)
+	var line: Line2D = _trails.get(last)
+	_trails.erase(last)
+	if line != null:
+		line.queue_free()
 	echoes_root.remove_child(last)
 	last.queue_free()
 	hud.show_message("The newest echo fades.")
+	_refresh_stars()
 	return true
 
 
@@ -148,11 +180,96 @@ func return_to_trailhead() -> void:
 func collect_star(star: Star) -> void:
 	if found_stars.has(star.cell):
 		return
+	var kept_secret := level_map.secrets.has(star.cell)
 	found_stars.append(star.cell)
 	star.queue_free()
-	hud.set_stars(star_count(), star_total())
-	if star_count() == star_total():
-		hud.show_message("Every star is yours. The summit will open.")
+	_refresh_stars()
+	if kept_secret:
+		hud.show_message("The island kept this one. The summit never asked.")
+	elif required_found() == star_total():
+		if secret_found():
+			hud.show_message("Every star is yours, island included. The summit will open.")
+		else:
+			hud.show_message("The road's stars are yours. The summit will open. Look up on the way.")
+
+
+func _refresh_stars() -> void:
+	hud.set_stars(required_found(), star_total(), _compass())
+
+
+func _compass() -> String:
+	var pool: Array[Vector2i] = []
+	for cell in level_map.stars:
+		if not found_stars.has(cell):
+			pool.append(cell)
+	if pool.is_empty():
+		for cell in level_map.secrets:
+			if not found_stars.has(cell):
+				pool.append(cell)
+	if pool.is_empty():
+		return "kept"
+	var nearest := pool[0]
+	var nearest_d := player.position.distance_to(LevelMap.cell_floor(nearest))
+	for cell in pool:
+		var distance := player.position.distance_to(LevelMap.cell_floor(cell))
+		if distance < nearest_d:
+			nearest = cell
+			nearest_d = distance
+	var there := LevelMap.cell_floor(nearest)
+	var dx := there.x - player.position.x
+	var dy := there.y - player.position.y
+	if dy < -40.0 and absf(dx) < 140.0:
+		return "above"
+	if dx < -24.0:
+		return "west"
+	if dx > 24.0:
+		return "east"
+	return "here"
+
+
+func _draw_trail(recording: EchoRecording) -> Line2D:
+	var line := Line2D.new()
+	line.width = 2.0
+	line.default_color = Color(0.55, 0.95, 1, 0.7)
+	line.joint_mode = Line2D.LINE_JOINT_ROUND
+	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	var count := recording.frame_count()
+	var i := 0
+	while i < count:
+		line.add_point(recording.position_at(i) + Vector2(0, -6))
+		i += 3
+	var last := recording.position_at(count - 1) + Vector2(0, -6)
+	if line.get_point_count() == 0 or line.get_point_position(line.get_point_count() - 1).distance_to(last) > 1.0:
+		line.add_point(last)
+	trails.add_child(line)
+	return line
+
+
+func _maybe_mention_island() -> void:
+	if _mentioned_island or level_map.secrets.is_empty():
+		return
+	var cell := LevelMap.cell_at_feet(player.position)
+	var secret: Vector2i = level_map.secrets[0]
+	if cell.y == level_map.spawn.y and absi(cell.x - secret.x) <= 4:
+		_mentioned_island = true
+		hud.show_message("Two of you can climb the island. The road does not need them.")
+
+
+func _maybe_greet() -> void:
+	if _met_yourself:
+		return
+	for node in echoes_root.get_children():
+		var echo := node as Echo
+		if echo == null or echo.ghost or echo.is_shattered:
+			continue
+		if int(_ages.get(echo, 0)) < echo.recording.frame_count():
+			continue
+		if echo.position.distance_to(player.position) > 42.0:
+			continue
+		_met_yourself = true
+		hud.show_message("You, waiting. They will not move again.")
+		return
 
 
 func _region_at(column: int) -> Dictionary:
@@ -202,6 +319,9 @@ func _on_ticked(_tick: int) -> void:
 	if player.active:
 		_update_region()
 		_update_trailhead()
+		_maybe_mention_island()
+		_maybe_greet()
+		_refresh_stars()
 
 
 func _on_player_died(_cause: StringName) -> void:
@@ -214,13 +334,23 @@ func _on_player_died(_cause: StringName) -> void:
 func _on_exit_reached() -> void:
 	if is_complete or not player.active:
 		return
-	if star_count() < star_total():
+	if required_found() < star_total():
 		hud.show_message("The summit stays shut until every star is found.")
 		return
 	is_complete = true
 	player.active = false
-	hud.show_message("The Clocklands remember you. Press Enter to walk them again.", true)
-	completed.emit(loop.recordings.size())
+	var echoes_used := loop.recordings.size()
+	Game.note_clocklands(echoes_used, secret_found())
+	var ending := "Echoes %d, best %d. " % [echoes_used, Game.best_echoes]
+	if secret_found():
+		ending += "You left someone on the island."
+	elif Game.found_island:
+		ending += "You have been to the island. This walk stayed on the road."
+	else:
+		ending += "The island is still waiting."
+	ending += " Enter walks it again."
+	hud.show_message(ending, true)
+	completed.emit(echoes_used)
 
 
 func _build_sky() -> void:
@@ -274,17 +404,24 @@ func _build_props() -> void:
 			props.add_child(door)
 			(switch_nodes[letter] as Switch).pressed_changed.connect(door.on_switch_changed)
 	for cell in level_map.stars:
-		var star: Star = STAR_SCENE.instantiate()
-		star.cell = cell
-		star.position = LevelMap.cell_floor(cell)
-		star.collected.connect(collect_star)
-		props.add_child(star)
+		_add_star(cell, false)
+	for cell in level_map.secrets:
+		_add_star(cell, true)
 	for cell in level_map.anchors:
 		_mark_trailhead(cell)
 	var exit: ExitFlag = EXIT_SCENE.instantiate()
 	exit.position = LevelMap.cell_floor(level_map.exit)
 	exit.reached.connect(_on_exit_reached)
 	props.add_child(exit)
+
+
+func _add_star(cell: Vector2i, secret: bool) -> void:
+	var star: Star = STAR_SCENE.instantiate()
+	star.cell = cell
+	star.secret = secret
+	star.position = LevelMap.cell_floor(cell)
+	star.collected.connect(collect_star)
+	props.add_child(star)
 
 
 func _mark_trailhead(cell: Vector2i) -> void:

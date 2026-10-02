@@ -27,8 +27,12 @@ func set_echoes(used: int, maximum: int) -> void:
 
 
 ## Rooms leave this blank and use the clock. The open world leaves the clock blank.
-func set_stars(found: int, total: int) -> void:
-	stars_label.text = "Stars %d/%d" % [found, total]
+## `compass` is a short pull, such as "west" or "above", toward a star still out there.
+func set_stars(found: int, total: int, compass := "") -> void:
+	if compass == "":
+		stars_label.text = "Stars %d/%d" % [found, total]
+	else:
+		stars_label.text = "Stars %d/%d  %s" % [found, total, compass]
 
 
 func set_time(tick: int) -> void:

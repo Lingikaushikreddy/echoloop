@@ -52,11 +52,13 @@ One map, three regions, west to east:
 
 ```
 The Gate                         The Meadow                    The Summit
-[far star | door | switch]       road under a hung island      a cliff you cannot jump
- a shelf to wait on              cyan trailhead (@)            plant an echo, then climb it
+[far star | door | switch]       road, then a step and an island  a cliff you cannot jump
+ a shelf to wait on              the island star is optional      plant an echo, then climb it
 ```
 
-A `@` on the ground sets your trailhead. The next echo replays from there, and T or a fall sends you back without erasing stars or planted echoes. The island in the meadow is scenery: it is too high to reach, and the road runs under it.
+A `@` on the ground sets your trailhead. The next echo replays from there, and the line on the ground shows where that past you will walk. T or a fall sends you back without erasing stars or planted echoes.
+
+The island star is not required. The summit opens without it, then tells you it is still up there. Two echoes climb it: one to the step, one from the step to the island. The road itself only needs the other two. A clear remembers your best echo count for the session, so the next walk has something to beat.
 
 ## How it works
 

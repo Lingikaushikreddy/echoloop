@@ -16,8 +16,14 @@ Rooms 1–3 are unchanged. In a room, time rewinds. In the Clocklands, the past 
 
 **Stars are an Area2D.** Only the player's layer is in the mask, so an echo cannot pick one up. The area also polls `get_overlapping_bodies()`, because landing already inside a gem does not always emit `body_entered`.
 
+## Why a person plays it twice
+
+The summit opens on the three road stars. The rose star on the island does not count. The clear tells you the island is still waiting, and it remembers the fewest echoes you have used. Each planted echo draws the trail it will walk, so the past you is something you can see coming and jump.
+
+The step under the island is three tiles up: one echo from the road, then another from the step. That is the whole of the spare echo budget (the road uses two, the island uses two, and the limit is four).
+
 ## Try it yourself
 
-1. Add a fourth `*` on the meadow road, somewhere you can walk to with no echo. `test_clocklands_can_be_cleared_with_two_planted_echoes` should fail until you pick it up on the way, because the summit checks `star_count() == star_total()`.
+1. Add another `*` on the meadow road, somewhere you can walk to with no echo. `test_clocklands_can_be_cleared_with_two_planted_echoes` should fail until you pick it up on the way, because the summit checks `required_found()` against `star_total()`. A `+` would not: that is the island star, and the exit ignores it.
 2. Move the hung island down so its floor is the tile above the road. Walk east. You will bonk. `test_clocklands_map_is_one_open_road` is the test that guards the clear road.
 3. In `_update_trailhead`, stop calling `recorder.start()` and plant an echo after a long wander. Watch the echo replay the entire walk. That is why the trailhead cuts the recording.

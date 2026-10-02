@@ -5,12 +5,16 @@ extends Area2D
 signal collected(star: Star)
 
 var cell := Vector2i.ZERO
+## The island star. The summit does not ask for it.
+var secret := false
 
 @onready var gem: Polygon2D = $Gem
 
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	if secret:
+		gem.color = Color(0.98, 0.42, 0.62, 1)
 
 
 func _process(_delta: float) -> void:

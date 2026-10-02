@@ -69,10 +69,11 @@ func test_cell_floor_is_bottom_centre() -> void:
 
 
 func test_parses_stars_and_trailheads() -> void:
-	var map := LevelMap.parse("##S.*@E#")
+	var map := LevelMap.parse("##S.*+@E#")
 	assert_true(map.is_valid(), str(map.errors))
 	assert_eq(map.stars, [Vector2i(4, 0)])
-	assert_eq(map.anchors, [Vector2i(5, 0)])
+	assert_eq(map.secrets, [Vector2i(5, 0)])
+	assert_eq(map.anchors, [Vector2i(6, 0)])
 
 
 func test_feet_land_back_in_the_same_cell() -> void:

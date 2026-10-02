@@ -6,7 +6,8 @@ extends RefCounted
 ##   S  player spawn     E  exit flag          (exactly one of each)
 ##   a-d  pressure switch (at most one per letter)
 ##   A-D  door tile, opened by the switch with the same letter
-##   *  star             @  trailhead          (any number, open world only)
+##   *  star             +  secret star        (any number; + does not gate an exit)
+##   @  trailhead                             (any number, open world only)
 ##
 ## Every row must be the same width. Problems are collected in `errors` instead
 ## of crashing, so a broken level says what is wrong.
@@ -20,6 +21,7 @@ var exit := Vector2i(-1, -1)
 var switches := {}  ## letter -> Vector2i
 var doors := {}  ## letter -> Array of Vector2i
 var stars: Array[Vector2i] = []
+var secrets: Array[Vector2i] = []
 var anchors: Array[Vector2i] = []
 var errors := PackedStringArray()
 
@@ -57,6 +59,8 @@ static func parse(text: String) -> LevelMap:
 					exits.append(cell)
 				"*":
 					result.stars.append(cell)
+				"+":
+					result.secrets.append(cell)
 				"@":
 					result.anchors.append(cell)
 				_:

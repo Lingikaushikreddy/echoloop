@@ -273,3 +273,5 @@ Rules that differ from a room:
 - **Undo** removes the newest echo and leaves the player in place.
 
 The map is still one character per tile, parsed by `LevelMap`. `*` and `@` are optional, so the original rooms do not change. A solution test steers a real player through both echo puzzles (the gate and the summit) and proves the summit cannot be jumped with no echo.
+
+A `+` star on the island does not gate the exit. The step below it is three tiles up, and the island is three tiles above the step, so the secret wants two more echoes. The clear remembers the session's best echo count and, when the island star is still out, says so. Each planted echo draws its trail.

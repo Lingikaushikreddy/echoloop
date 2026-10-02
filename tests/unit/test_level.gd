@@ -144,3 +144,26 @@ func test_retry_does_not_shatter_an_echo_in_an_open_doorway() -> void:
 	level.retry()
 	await wait_physics_frames(2)  # the restart frees the old echoes, so count via the connection
 	assert_eq(shatters.size(), 0, "a restart is not a paradox")
+
+
+func test_retry_on_a_latch_switch_does_not_latch_the_next_loop() -> void:
+	level = LEVEL.instantiate()
+	level.map = MAP
+	level.max_echoes = 2
+	level.latch_doors = "a"
+	add_child_autofree(level)
+	await wait_physics_frames(2)
+	var door: Door = null
+	for prop in level.props.get_children():
+		if prop is Door:
+			door = prop
+	level.player.input_source = ScriptedInputSource.new([{"frames": 20, "move": -1.0}])
+	level.retry()
+	await wait_physics_frames(40)
+	assert_true(door.is_open, "standing on the switch latches the door")
+	# Retry while still on the switch: the plate's first reading after the reset still
+	# describes the old loop and must not latch the door again.
+	level.player.input_source = ScriptedInputSource.new([])
+	level.retry()
+	await wait_physics_frames(10)
+	assert_false(door.is_open, "nobody is on the switch in the new loop")

@@ -18,3 +18,7 @@ func test_physics_runs_at_60_ticks() -> void:
 
 func test_uses_compatibility_renderer() -> void:
 	assert_eq(ProjectSettings.get_setting("rendering/renderer/rendering_method"), "gl_compatibility")
+
+
+func test_game_is_called_yesterself() -> void:
+	assert_eq(ProjectSettings.get_setting("application/config/name"), "Yesterself")

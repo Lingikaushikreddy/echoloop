@@ -5,7 +5,7 @@ config_version=5
 
 [application]
 
-config/name="Echoloop"
+config/name="Yesterself"
 config/description="A platformer where your past attempts help you."
 run/main_scene="res://levels/level_01.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")

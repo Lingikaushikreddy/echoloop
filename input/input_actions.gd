@@ -1,6 +1,6 @@
 class_name InputActions
 extends RefCounted
-## Registers Echoloop's input actions in code so project.godot stays readable.
+## Registers Yesterself's input actions in code so project.godot stays readable.
 ## While the game runs, the same actions appear in Project Settings → Input Map.
 
 const DEADZONE := 0.3

@@ -9,9 +9,9 @@
 
 **Scene.** A tree of nodes saved as a `.tscn` text file. Scenes nest: the Player scene is placed inside every level scene, and a level can be *inherited* by another scene that changes only a few properties. The `.tscn` files in this repo are plain text, so open one and compare it with what the editor shows.
 
-**`project.godot`.** Project settings as text. Echoloop draws at 480×270 and scales up by whole numbers (`stretch/scale_mode="integer"`), so pixel art stays sharp. `default_texture_filter=0` means *Nearest*: pixels are never blurred.
+**`project.godot`.** Project settings as text. Yesterself draws at 480×270 and scales up by whole numbers (`stretch/scale_mode="integer"`), so pixel art stays sharp. `default_texture_filter=0` means *Nearest*: pixels are never blurred.
 
-**Physics ticks.** Godot runs `_physics_process` 60 times per second, independent of the frame rate. Echoloop's loop clock counts these ticks.
+**Physics ticks.** Godot runs `_physics_process` 60 times per second, independent of the frame rate. Yesterself's loop clock counts these ticks.
 
 **Headless.** `--headless` runs Godot without a window or GPU. `--import` builds the `.godot/` cache (imported textures and the list of `class_name` scripts). `--fixed-fps 60` makes each frame exactly 1/60 s and runs as fast as the CPU allows, which makes physics tests quick and repeatable.
 

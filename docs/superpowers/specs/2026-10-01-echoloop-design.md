@@ -1,12 +1,12 @@
-# Echoloop — design spec
+# Yesterself — design spec
 
 - **Date:** 2026-10-01
 - **Status:** approved in conversation; awaiting written-spec review
-- **Working title:** Echoloop (check itch.io for name collisions before publishing)
+- **Title:** Yesterself ("yesterday's self"). Renamed from the working title Echoloop on 2026-10-01, because itch.io already lists four games called EchoLoop, Echo Loop or The Echo Loop. Yesterself had no same-title game on itch.io or Steam and no GitHub repo of that name.
 
 ## 1. Purpose and success criteria
 
-**Purpose.** Learn Godot 4 and GDScript by building a small, finished 2D platformer. The game is the vehicle for learning the engine. It is deliberately different from Settlement-Village: that project is a slow top-down strategy/simulation game where the player mostly watches AI agents; Echoloop is a real-time platformer the player controls directly.
+**Purpose.** Learn Godot 4 and GDScript by building a small, finished 2D platformer. The game is the vehicle for learning the engine. It is deliberately different from Settlement-Village: that project is a slow top-down strategy/simulation game where the player mostly watches AI agents; Yesterself is a real-time platformer the player controls directly.
 
 **Working mode.** Claude writes the code. Each milestone ships with a learning note (`docs/learning/NN-topic.md`) explaining the Godot concepts it used and one "try it yourself" exercise, so the owner can study and extend the code.
 
@@ -21,7 +21,7 @@
 - Godot 4 (latest stable at install time, installed with Homebrew), GDScript only. C# is excluded because Godot 4 C# projects cannot export to the web.
 - Compatibility renderer (WebGL 2), single-threaded web export.
 - CC0 art and audio only.
-- New standalone repo at `~/Desktop/Projects/echoloop`, published under the owner's GitHub account with no Claude attribution in commits or PRs.
+- New standalone repo, https://github.com/Lingikaushikreddy/yesterself (local clone `~/Desktop/Projects/yesterself`), published under the owner's GitHub account with no Claude attribution in commits or PRs.
 - Settlement-Village is not modified.
 
 ## 2. Game design
@@ -88,7 +88,7 @@ Par values are starting targets. They are finalised when each level's solution t
 ### 3.1 Project layout
 
 ```
-echoloop/
+yesterself/
   project.godot                Godot 4, GDScript, physics at 60 ticks/s
   autoload/game.gd             level list, progress, save/load
   autoload/sfx.gd              sound-effect helper

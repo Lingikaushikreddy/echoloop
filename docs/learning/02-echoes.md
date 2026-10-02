@@ -8,7 +8,7 @@ Press R and your attempt becomes an echo. It replays beside you every loop, can 
 
 **Instancing scenes at runtime** (`levels/level.gd`, `_restart`). `ECHO_SCENE.instantiate()` creates a fresh copy of `echo.tscn`. `setup()` runs before `add_child()`, so the echo is born at its first recorded position.
 
-**`AnimatableBody2D`.** A body moved by code that still blocks and carries other bodies: the physics server works out its velocity from how far it moved, so a player standing on an echo moves with it. Echoloop turns `sync_to_physics` **off** for echoes. With it on, Godot snaps the node back to its last physics position right after you set `position`, until the next physics step, so the echo's own code would read a stale position. (That is exactly what the first version of the echo tests caught.)
+**`AnimatableBody2D`.** A body moved by code that still blocks and carries other bodies: the physics server works out its velocity from how far it moved, so a player standing on an echo moves with it. Yesterself turns `sync_to_physics` **off** for echoes. With it on, Godot snaps the node back to its last physics position right after you set `position`, until the next physics step, so the echo's own code would read a stale position. (That is exactly what the first version of the echo tests caught.)
 
 **Signals.** One node announces something and others react, without knowing about each other. Examples: `LoopController.ticked(tick)`, `Switch.pressed_changed(is_pressed)`, `Player.died(cause)`, `ExitFlag.reached`. Find the `.connect(...)` calls in `level.gd`.
 

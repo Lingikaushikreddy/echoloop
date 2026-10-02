@@ -17,7 +17,7 @@ The player runs, jumps (with coyote time, jump buffering and variable height) an
 
 **Collision layers and masks.** A body is *on* some layers and *scans* others (its mask). The player is on layer 2 and collides with terrain (1), echoes (3), doors (5) and platforms (8), so its mask is 1 + 4 + 16 + 128 = 149. The layer names are in Project Settings → Layer Names → 2D Physics.
 
-**TileMapLayer and TileSet.** A TileSet slices a sprite sheet into tiles and can give each tile a collision polygon. A TileMapLayer places tiles on a grid. Echoloop builds its TileSet in code (`levels/terrain_tileset.gd`) and places tiles from the text map. In the editor you would do the same in the TileSet and TileMap panels.
+**TileMapLayer and TileSet.** A TileSet slices a sprite sheet into tiles and can give each tile a collision polygon. A TileMapLayer places tiles on a grid. Yesterself builds its TileSet in code (`levels/terrain_tileset.gd`) and places tiles from the text map. In the editor you would do the same in the TileSet and TileMap panels.
 
 **`Sprite2D` regions.** `region_rect` shows one 24×24 part of the character sheet. `CharacterSprite` picks the frame.
 

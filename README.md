@@ -1,4 +1,4 @@
-# Echoloop
+# Yesterself
 
 A small 2D platformer made with **Godot 4.7** while learning the engine. Each attempt you make is recorded. Commit it and it becomes an **echo**: a past self that replays beside you, holds switches down, and works as a step to stand on.
 
@@ -40,7 +40,7 @@ scripts/export_web.sh
 python3 -m http.server 8090 --directory build/web   # then open http://localhost:8090
 ```
 
-`fetch_web_templates.py` downloads only the ~20 MB of web templates instead of Godot's full 1.3 GB template archive. CI builds the same web version on every push and attaches it as the `echoloop-web` artifact.
+`fetch_web_templates.py` downloads only the ~20 MB of web templates instead of Godot's full 1.3 GB template archive. CI builds the same web version on every push and attaches it as the `yesterself-web` artifact.
 
 ## How it works
 

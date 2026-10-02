@@ -1,7 +1,7 @@
 # Yesterself: polished indie demo
 
 Date: 2026-10-02
-Status: conversational design approved; awaiting written spec review.
+Status: approved by the owner on 2026-10-02; implementation in progress.
 
 ## Intent and scope
 

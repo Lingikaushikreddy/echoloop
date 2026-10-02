@@ -9,8 +9,10 @@ GODOT="${GODOT:-godot}"
 "$GODOT" --headless --import
 # --fixed-fps 60 makes every frame exactly one 1/60 s physics tick, as fast as the CPU allows.
 LOG="$(mktemp)"
+TEST_SAVE_DIR="$(mktemp -d)"
+trap 'rm -f "$LOG" "$TEST_SAVE_DIR/save.json" "$TEST_SAVE_DIR/save.json.tmp"; rmdir "$TEST_SAVE_DIR"' EXIT
 set +e
-"$GODOT" --headless --fixed-fps 60 -s addons/gut/gut_cmdln.gd "$@" 2>&1 | tee "$LOG"
+YESTERSELF_SAVE_PATH="$TEST_SAVE_DIR/save.json" "$GODOT" --headless --fixed-fps 60 -s addons/gut/gut_cmdln.gd "$@" 2>&1 | tee "$LOG"
 STATUS=${PIPESTATUS[0]}
 set -e
 # GUT skips a test file that fails to parse ("does not extend GutTest") and still
@@ -19,5 +21,4 @@ if grep -qE 'SCRIPT ERROR|Failed to load script|\[GUT ERROR\]|does not extend Gu
   echo "scripts/test.sh: script errors above; failing the run." >&2
   STATUS=1
 fi
-rm -f "$LOG"
 exit "$STATUS"

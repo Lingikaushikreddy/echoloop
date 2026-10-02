@@ -18,3 +18,4 @@ func test_level_01_is_solvable_without_echoes() -> void:
 func test_walking_into_the_gap_kills() -> void:
 	var level := await play_solution("res://levels/level_01.tscn", [[{"frames": 120, "move": 1.0}]])
 	assert_false(level.is_complete)
+	assert_has(deaths, &"fall", "walking right without jumping should drop into the gap")

@@ -7,10 +7,15 @@ extends GutTest
 const EXTRA_TICKS := 90
 const SETTLE_TICKS := 10
 
+## Causes of every player death during the last play_solution() run, in order.
+var deaths: Array[StringName] = []
+
 
 func play_solution(level_path: String, attempts: Array) -> Level:
 	var level: Level = load(level_path).instantiate()
 	add_child_autofree(level)
+	deaths.clear()
+	level.player.died.connect(func(cause: StringName) -> void: deaths.append(cause))
 	await wait_physics_frames(1)
 	for i in attempts.size():
 		var source := ScriptedInputSource.new(attempts[i])

@@ -30,9 +30,12 @@ func _physics_process(_delta: float) -> void:
 	_set_pressed(has_overlapping_bodies())
 
 
+## Silent on purpose: emitting here would make a HOLD door "close" on the bodies still
+## standing in it, a false paradox. Doors reset themselves.
 func reset_to_start() -> void:
 	_skip_readings = 1
-	_set_pressed(false)
+	is_pressed = false
+	sprite.region_rect = UP_REGION
 
 
 func _set_pressed(value: bool) -> void:

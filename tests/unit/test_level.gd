@@ -123,3 +123,24 @@ func test_echo_holds_the_switch_and_opens_the_door() -> void:
 		if prop is Door:
 			door = prop
 	assert_true(door.is_open, "the echo should be holding the switch down")
+
+
+func test_retry_does_not_shatter_an_echo_in_an_open_doorway() -> void:
+	await _make_level()
+	# Echo 1 holds the switch; echo 2 walks into the doorway it opened and stays there.
+	level.player.input_source = ScriptedInputSource.new([{"frames": 20, "move": -1.0}])
+	level.retry()
+	await wait_physics_frames(40)
+	assert_true(level.commit_attempt())
+	level.player.input_source = ScriptedInputSource.new([{"frames": 20}, {"frames": 20, "move": 1.0}])
+	await wait_physics_frames(60)
+	assert_true(level.commit_attempt())
+	level.player.input_source = ScriptedInputSource.new([])
+	await wait_physics_frames(60)
+	var in_doorway: Echo = level.echoes_root.get_child(1)
+	assert_false(in_doorway.is_shattered, "echo 2 should be standing in the open doorway")
+	var shatters: Array[Echo] = []
+	in_doorway.shattered.connect(func(echo: Echo) -> void: shatters.append(echo))
+	level.retry()
+	await wait_physics_frames(2)  # the restart frees the old echoes, so count via the connection
+	assert_eq(shatters.size(), 0, "a restart is not a paradox")

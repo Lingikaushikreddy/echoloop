@@ -9,6 +9,10 @@ config/name="Echoloop"
 config/description="A platformer where your past attempts help you."
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
+[autoload]
+
+Game="*res://autoload/game.gd"
+
 [display]
 
 window/size/viewport_width=480

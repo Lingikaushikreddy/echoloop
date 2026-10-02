@@ -3,6 +3,8 @@ extends CharacterBody2D
 ## The live player. Reads `input_source` once per physics tick. The node origin is at the feet.
 
 signal died(cause: StringName)
+signal jumped
+signal landed
 
 const RUN_SPEED := 110.0
 const GRAVITY := 900.0
@@ -52,6 +54,8 @@ func _physics_process(delta: float) -> void:
 
 ## One tick of movement. Public so tests can drive it directly.
 func step(frame: InputFrame, delta: float) -> void:
+	var was_on_floor := is_on_floor()
+	var falling_speed := velocity.y
 	velocity.x = frame.move * RUN_SPEED
 	if frame.move != 0.0:
 		facing_left = frame.move < 0.0
@@ -71,11 +75,14 @@ func step(frame: InputFrame, delta: float) -> void:
 		_jump_buffer = 0
 		_coyote = 0
 		_can_cut_jump = true
+		jumped.emit()
 	if _can_cut_jump and not frame.jump_held and velocity.y < 0.0:
 		velocity.y *= JUMP_CUT
 		_can_cut_jump = false
 
 	move_and_slide()
+	if not was_on_floor and is_on_floor() and falling_speed > 80.0:
+		landed.emit()
 	_ticks += 1
 
 	if not is_on_floor():

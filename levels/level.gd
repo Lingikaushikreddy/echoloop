@@ -28,6 +28,7 @@ const KILL_MARGIN := 36.0
 var level_map: LevelMap
 var spawn_point := Vector2.ZERO
 var is_complete := false
+var effects: WorldEffects
 
 var _death_ticks_left := -1
 var _restart_queued := false
@@ -48,6 +49,10 @@ func _ready() -> void:
 		return
 	_build_terrain()
 	_build_props()
+	var scenery := ClocklandsScenery.new()
+	scenery.configure(Vector2(level_map.size) * LevelMap.TILE, true)
+	add_child(scenery)
+	effects = WorldEffects.attach(self, player)
 	spawn_point = LevelMap.cell_floor(level_map.spawn)
 	player.kill_y = level_map.size.y * LevelMap.TILE + KILL_MARGIN
 	player.died.connect(_on_player_died)
@@ -83,6 +88,7 @@ func commit_attempt() -> bool:
 			hud.show_message("Echo limit: Undo (Backspace) or Retry (T)")
 		return false
 	_queue_restart()
+	effects.burst(player.position, Color("80edf0"), "plant")
 	return true
 
 
@@ -98,6 +104,7 @@ func undo_echo() -> bool:
 	if is_complete or not loop.undo():
 		return false
 	_queue_restart()
+	effects.burst(player.position, Color("80edf0"), "undo")
 	return true
 
 
@@ -126,6 +133,9 @@ func _restart() -> void:
 		var echo: Echo = ECHO_SCENE.instantiate()
 		echo.setup(loop.recordings[i], i, player)
 		echoes_root.add_child(echo)
+		echo.shattered.connect(func(body: Echo) -> void:
+			effects.burst(body.position, Color("80edf0"), "shatter")
+			hud.show_message("Paradox: an echo shattered. Retry brings it back."))
 	player.recorder.start()
 	loop.reset()
 	hud.set_time(0)
@@ -156,6 +166,7 @@ func _on_exit_reached() -> void:
 		return
 	is_complete = true
 	player.active = false
+	effects.burst(player.position, Color("f4cf75"), "clear")
 	hud.show_message("Room clear!  Press Enter for the next room.", true)
 	completed.emit(loop.recordings.size())
 

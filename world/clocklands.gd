@@ -43,6 +43,7 @@ const REGIONS: Array[Dictionary] = [
 var level_map: LevelMap
 var anchor_point := Vector2.ZERO
 var is_complete := false
+var effects: WorldEffects
 var found_stars: Array[Vector2i] = []
 
 var _death_ticks_left := -1
@@ -96,6 +97,7 @@ func _ready() -> void:
 	_build_sky()
 	_build_terrain()
 	_build_props()
+	effects = WorldEffects.attach(self, player)
 	trails = Node2D.new()
 	trails.name = "Trails"
 	trails.z_index = 2
@@ -142,10 +144,14 @@ func plant_echo() -> bool:
 	var echo: Echo = ECHO_SCENE.instantiate()
 	echo.setup(loop.recordings[-1], loop.recordings.size() - 1, player)
 	echoes_root.add_child(echo)
+	echo.shattered.connect(func(body: Echo) -> void:
+		effects.burst(body.position, Color("80edf0"), "shatter")
+		hud.show_message("Paradox: your echo shattered. Undo frees its slot."))
 	_ages[echo] = 0
 	_trails[echo] = _draw_trail(loop.recordings[-1])
 	player.recorder.start()
 	hud.show_message("You leave yourself here. Follow the line.")
+	effects.burst(player.position, Color("80edf0"), "plant")
 	_refresh_stars()
 	return true
 
@@ -162,6 +168,7 @@ func undo_echo() -> bool:
 		line.queue_free()
 	echoes_root.remove_child(last)
 	last.queue_free()
+	effects.burst(player.position, Color("80edf0"), "undo")
 	hud.show_message("The newest echo fades.")
 	_refresh_stars()
 	return true
@@ -182,6 +189,7 @@ func collect_star(star: Star) -> void:
 		return
 	var kept_secret := level_map.secrets.has(star.cell)
 	found_stars.append(star.cell)
+	effects.burst(star.position, Color("f4cf75"), "star")
 	star.queue_free()
 	_refresh_stars()
 	if kept_secret:
@@ -339,6 +347,7 @@ func _on_exit_reached() -> void:
 		return
 	is_complete = true
 	player.active = false
+	effects.burst(player.position, Color("f4cf75"), "clear")
 	var echoes_used := loop.recordings.size()
 	Game.note_clocklands(echoes_used, secret_found())
 	var ending := "Echoes %d, best %d. " % [echoes_used, Game.best_echoes]
@@ -354,31 +363,10 @@ func _on_exit_reached() -> void:
 
 
 func _build_sky() -> void:
-	var sky := Node2D.new()
-	sky.name = "Sky"
-	sky.z_index = -10
-	add_child(sky)
-	move_child(sky, 0)
-	var clouds: Array[Dictionary] = [
-		{"at": Vector2(120, 46), "w": 78.0},
-		{"at": Vector2(340, 34), "w": 96.0},
-		{"at": Vector2(640, 50), "w": 70.0},
-		{"at": Vector2(980, 40), "w": 110.0},
-	]
-	for spec: Dictionary in clouds:
-		var cloud := Polygon2D.new()
-		var w := float(spec.w)
-		var poly := PackedVector2Array()
-		poly.append(Vector2(-w, 8))
-		poly.append(Vector2(-w * 0.55, -6))
-		poly.append(Vector2(-w * 0.15, -2))
-		poly.append(Vector2(w * 0.2, -9))
-		poly.append(Vector2(w * 0.6, -1))
-		poly.append(Vector2(w, 8))
-		cloud.polygon = poly
-		cloud.color = Color(0.9, 0.95, 0.98, 0.45)
-		cloud.position = spec.at
-		sky.add_child(cloud)
+	var scenery := ClocklandsScenery.new()
+	scenery.name = "Sky"
+	scenery.configure(Vector2(level_map.size) * LevelMap.TILE, false)
+	add_child(scenery)
 
 
 func _build_terrain() -> void:

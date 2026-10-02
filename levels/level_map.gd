@@ -23,6 +23,9 @@ var doors := {}  ## letter -> Array of Vector2i
 var stars: Array[Vector2i] = []
 var secrets: Array[Vector2i] = []
 var anchors: Array[Vector2i] = []
+var spikes: Array[Vector2i] = []
+var saws: Array[Vector2i] = []
+var lifts := {}  ## a-d: one lift per linked switch, represented by 1-4
 var errors := PackedStringArray()
 
 
@@ -63,6 +66,15 @@ static func parse(text: String) -> LevelMap:
 					result.secrets.append(cell)
 				"@":
 					result.anchors.append(cell)
+				"^":
+					result.spikes.append(cell)
+				"O":
+					result.saws.append(cell)
+				"1", "2", "3", "4":
+					var letter := String.chr(97 + int(ch) - 1)
+					if result.lifts.has(letter):
+						result.errors.append("lift %s appears more than once" % ch)
+					result.lifts[letter] = cell
 				_:
 					if ch >= "a" and ch <= "d":
 						if result.switches.has(ch):
@@ -87,6 +99,9 @@ static func parse(text: String) -> LevelMap:
 	for letter: String in result.doors:
 		if not result.switches.has(letter):
 			result.errors.append("door %s has no switch %s" % [letter.to_upper(), letter])
+	for letter: String in result.lifts:
+		if not result.switches.has(letter):
+			result.errors.append("lift has no switch %s" % letter)
 	return result
 
 

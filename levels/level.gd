@@ -19,6 +19,11 @@ const KILL_MARGIN := 36.0
 ## Letters of doors that stay open once triggered, for example "b".
 @export var latch_doors := ""
 @export_multiline var map := ""
+@export var saw_travel := Vector2(0, -72)
+@export_range(60, 600) var saw_period := 240
+@export var saw_phase := 0
+@export var lift_travel := Vector2(0, -90)
+@export_range(30, 300) var lift_duration := 120
 
 var level_map: LevelMap
 var spawn_point := Vector2.ZERO
@@ -127,6 +132,9 @@ func _restart() -> void:
 
 
 func _on_ticked(tick: int) -> void:
+	for prop in props.get_children():
+		if prop is ClockworkHazard or prop is ClockworkLift:
+			prop.apply_tick(tick)
 	for echo: Echo in echoes_root.get_children():
 		echo.apply_tick(tick)
 	camera.position = player.position
@@ -174,6 +182,19 @@ func _build_props() -> void:
 			door.position = LevelMap.cell_center(cell)
 			props.add_child(door)
 			(switch_nodes[letter] as Switch).pressed_changed.connect(door.on_switch_changed)
+	for cell in level_map.spikes:
+		var hazard := ClockworkHazard.new()
+		hazard.setup(LevelMap.cell_floor(cell), Vector2.ZERO, 0, 0)
+		props.add_child(hazard)
+	for cell in level_map.saws:
+		var hazard := ClockworkHazard.new()
+		hazard.setup(LevelMap.cell_center(cell), saw_travel, saw_period, saw_phase)
+		props.add_child(hazard)
+	for letter: String in level_map.lifts:
+		var lift := ClockworkLift.new()
+		lift.setup(LevelMap.cell_floor(level_map.lifts[letter]), lift_travel, lift_duration)
+		props.add_child(lift)
+		(switch_nodes[letter] as Switch).pressed_changed.connect(lift.on_switch_changed)
 	var exit: ExitFlag = EXIT_SCENE.instantiate()
 	exit.position = LevelMap.cell_floor(level_map.exit)
 	exit.reached.connect(_on_exit_reached)

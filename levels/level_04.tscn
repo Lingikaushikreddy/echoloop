@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://levels/level_base.tscn" id="1_base"]
+
+[node name="Level04" instance=ExtResource("1_base")]
+title = "4. The Pendulum"
+hint = "Leave an echo on the plate. Cross when the pendulum rises."
+max_echoes = 1
+par_echoes = 1
+saw_travel = Vector2(0, -72)
+saw_period = 240
+map = "###########################
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................#....#
+#....................A....#
+#a...S........O......A..E.#
+###########################
+###########################"

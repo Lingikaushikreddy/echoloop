@@ -227,8 +227,8 @@ Each milestone ends with a playable build, a learning note in `docs/learning/` a
 |---|---|---|---|
 | M0 | Install Godot via Homebrew, create the project and repo, vendor GUT, CI skeleton (tests + web export) | none | Editor tour, nodes and scenes, project settings, headless runs |
 | M1 | Player movement (coyote time, jump buffer, variable jump), `InputSource`, TileMapLayer, Camera2D, kill line | 1 | CharacterBody2D, InputMap, TileMapLayer, AnimatedSprite2D |
-| M2 | `EchoRecording`, `Recorder`, `Echo`, `LoopController`, commit/retry/undo, HUD echo slots and timer | 2–3 | Resources, instancing, AnimatableBody2D, signals, process priority |
-| M3 | Switch, door (hold/latch), spikes, saw, paradox + effect, ghost-at-spawn, timeline bar | 4–6 | Area2D, collision layers, groups, CPUParticles2D, shaders |
+| M2 | `EchoRecording`, `Recorder`, `Echo`, `LoopController`, commit/retry/undo, HUD echo count and timer, switch, door (hold/latch), ghost-at-spawn | 2–3 | Resources, instancing, AnimatableBody2D, signals, process priority, Area2D, groups |
+| M3 | Spikes, saw, paradox effect, timeline bar | 4–6 | Collision layers, CPUParticles2D, shaders |
 | M4 | Walking enemy + stomp, moving platform | 7–10 | Path2D/PathFollow2D, tick-driven motion, scene inheritance |
 | M5 | Title, level select, pause, results, saving, audio, par stars, echo paths, focus pause | none | Control nodes, themes, autoloads, FileAccess/JSON, audio buses |
 | M6 | Web export, itch.io page copy, README with GIF, butler release on tag | none | Export presets, web builds, CI release |
@@ -237,7 +237,18 @@ Each milestone ends with a playable build, a learning note in `docs/learning/` a
 
 Weapons and combat, input-replay echoes (approach B) and hybrid paradox detection (approach C), key remapping, touch controls, leaderboards, cutscenes, a level editor, localisation, desktop store releases.
 
-## 10. Decisions recorded
+## 10. Plan-time changes (2026-10-01)
+
+These were made while writing Plan 1 (`docs/superpowers/plans/2026-10-01-echoloop-plan-1-foundation-and-echoes.md`). What the player sees is unchanged.
+
+1. **Levels are text maps.** Each level is an exported `map` string, one character per tile, parsed by `LevelMap`. A switch and its door are linked by sharing a letter (`a` opens `A`), instead of an exported property set in the editor. Levels are exact, diffable and testable headless, and painting rooms in the editor becomes a learning exercise.
+2. **Damage is pushed, not sensed.** Doors (and, in Plan 2, hazards and enemies) detect bodies and call `hurt(cause)` on the player or an echo. Echoes do not carry their own paradox sensor (section 3.4). The paradox rule is the same.
+3. **The M2/M3 split moved.** Levels 2–3 need switches, doors and ghost-at-spawn, so they moved from M3 to M2 (see section 8).
+4. **HUD and room completion are simpler until Plan 3.** Plan 1's HUD is text (`Echoes 1/3`, time, hint), and Enter loads the next room. The pixel font, slot symbols, in-world signs and the results panel arrive with M5.
+5. **Characters use `Sprite2D` regions.** Kenney characters have two frames, so `CharacterSprite` switches `region_rect` instead of using `AnimatedSprite2D`.
+6. **Exact pins:** Godot 4.7.2 and GUT 9.7.1. Web templates are fetched with HTTP range requests (`scripts/fetch_web_templates.py`), about 20 MB instead of the 1.3 GB archive.
+
+## 11. Decisions recorded
 
 | Decision | Choice | Reason |
 |---|---|---|

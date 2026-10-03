@@ -121,6 +121,7 @@ func _ready() -> void:
 	_update_region()
 	Game.settings_changed.connect(_apply_display_settings)
 	_apply_display_settings()
+	Game.set_web_controls_mode("play")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -183,6 +184,7 @@ func undo_echo() -> bool:
 func return_to_trailhead() -> void:
 	if is_complete:
 		return
+	Game.set_web_controls_mode("play")
 	_death_ticks_left = -1
 	player.respawn(anchor_point)
 	player.recorder.start()

@@ -142,6 +142,7 @@ func _restart() -> void:
 	player.recorder.start()
 	loop.reset()
 	hud.set_time(0)
+	Game.set_web_controls_mode("play")
 
 
 func _on_ticked(tick: int) -> void:

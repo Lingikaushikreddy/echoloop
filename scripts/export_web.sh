@@ -11,4 +11,5 @@ mkdir -p build/web
 for f in index.html index.js index.wasm index.pck; do
   test -f "build/web/$f" || { echo "missing build/web/$f" >&2; exit 1; }
 done
+python3 scripts/finalize_web_export.py build/web
 echo "Web build ready in build/web"

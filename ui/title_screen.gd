@@ -21,6 +21,7 @@ var _time := 0.0
 
 
 func _ready() -> void:
+	Game.set_web_controls_mode("menu")
 	theme = DemoTheme.build()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var scenery := ClocklandsScenery.new()

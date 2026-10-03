@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#182b3c">
+  <title>$GODOT_PROJECT_NAME</title>
+  $GODOT_HEAD_INCLUDE
+  <style>
+    :root { color-scheme: dark; --ink: #182b3c; --paper: #f0e7d0; --cyan: #80edf0; --gold: #f4cf75; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--ink); color: var(--paper); }
+    body { font-family: "Trebuchet MS", system-ui, sans-serif; overscroll-behavior: none; }
+    [hidden] { display: none !important; }
+    #shell { height: 100%; height: 100dvh; display: flex; flex-direction: column;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    #game { flex: 1; min-height: 0; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    #canvas { display: block; width: 480px; height: 270px; image-rendering: pixelated; outline: none; touch-action: none; }
+    #touch-dock { flex: none; padding: 8px 12px 12px; border-top: 1px solid #55777e; background: #142733; user-select: none; -webkit-user-select: none; }
+    #touch-caption { margin: 0 0 9px; font-size: 12px; text-align: center; color: #afc6c5; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 960px; margin: auto; }
+    .move, .actions, .tools { display: flex; gap: 8px; }
+    .move { justify-content: flex-start; } .actions { justify-content: flex-end; }
+    .tools { grid-column: 1 / -1; justify-content: center; }
+    button { border: 1px solid #55777e; border-radius: 8px; background: #243e50; color: var(--paper);
+      font: 600 15px "Trebuchet MS", system-ui, sans-serif; min-height: 48px; padding: 8px 12px; cursor: pointer; touch-action: none;
+      -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    button.is-held { border-color: var(--cyan); background: #43656d; transform: translateY(1px); }
+    button:disabled { opacity: .38; cursor: default; }
+    .tools button { flex: 1; max-width: 110px; }
+    .move button { min-width: 64px; min-height: 64px; display: grid; place-items: center; gap: 2px; font-size: 11px; }
+    .move svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 3; }
+    .actions button { min-width: 66px; min-height: 64px; }
+    #jump { min-width: 80px; border-color: var(--gold); color: var(--gold); }
+    #commit { border-color: #609b9f; color: var(--cyan); }
+    #phone-note { display: none; margin: 0; padding: 8px 12px; text-align: center; font-size: 12px; color: #afc6c5; }
+    body.touch #phone-note { display: block; }
+    @media (orientation: landscape) {
+      body.touch #phone-note { display: none; }
+      .controls { grid-template-columns: 1fr auto 1fr; }
+      .tools { grid-column: 2; grid-row: 1; align-items: center; }
+      .move { grid-column: 1; grid-row: 1; } .actions { grid-column: 3; grid-row: 1; }
+      .tools button { min-width: 60px; }
+      #touch-dock { padding: 5px 12px 8px; } #touch-caption { margin-bottom: 5px; font-size: 11px; }
+    }
+    @media (max-width: 350px) {
+      #touch-dock { padding-left: 8px; padding-right: 8px; }
+      .move button { min-width: 56px; } .actions button { min-width: 60px; } #jump { min-width: 66px; }
+      .move, .actions { gap: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) { button.is-held { transform: none; } }
+    #loading { position: fixed; inset: 0; display: grid; align-content: center; justify-items: center; gap: 12px; padding: 24px; background: var(--ink); z-index: 2; }
+    #loading h1 { margin: 0; font-size: 32px; } #loading p { max-width: 480px; text-align: center; color: #afc6c5; }
+    #progress { width: min(300px, 80vw); accent-color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <main id="shell">
+    <p id="phone-note">Turn your phone sideways for a bigger view.</p>
+    <div id="game"><canvas id="canvas" width="480" height="270" tabindex="0" aria-label="Yesterself game">Your browser does not support canvas.</canvas></div>
+    <section id="touch-dock" aria-label="Game touch controls" hidden>
+      <p id="touch-caption">Hold to move. Tap Jump. Echo leaves your past.</p>
+      <div class="controls">
+        <div class="tools">
+          <button data-action="retry" aria-label="Retry from the trailhead or room start">Retry</button>
+          <button data-action="undo" aria-label="Undo the newest echo">Undo</button>
+          <button data-action="pause" aria-label="Pause or resume the game">Pause</button>
+        </div>
+        <div class="move" aria-label="Movement">
+          <button data-action="move_left" aria-label="Move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4l-8 8 8 8"/></svg>Left</button>
+          <button data-action="move_right" aria-label="Move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8"/></svg>Right</button>
+        </div>
+        <div class="actions">
+          <button id="commit" data-action="commit" aria-label="Plant an echo of this trail">Echo</button>
+          <button id="jump" data-action="jump">Jump</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="loading" role="status"><h1>Yesterself</h1><p id="loading-text">Preparing the Clocklands...</p><progress id="progress"></progress></div>
+  <noscript>Enable JavaScript to play Yesterself.</noscript>
+
+  <script id="touch-input">
+  (() => {
+    class TouchControls {
+      constructor(buttons, dock, caption) {
+        this.buttons = buttons;
+        this.dock = dock;
+        this.caption = caption;
+        this.mode = 'menu';
+        this.touchEnabled = false;
+        this.pointers = new Map();
+        this.callback = null;
+        this.on_change = () => {};
+        for (const [action, button] of Object.entries(buttons)) {
+          button.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            if (!this.press(event.pointerId, action)) return;
+            button.setPointerCapture(event.pointerId);
+          });
+          for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+            button.addEventListener(type, event => {
+              event.preventDefault();
+              this.release(event.pointerId);
+            });
+          }
+          button.addEventListener('keydown', event => {
+            if (event.key !== ' ' && event.key !== 'Enter') return;
+            event.preventDefault();
+            if (!event.repeat) this.press('key:' + action, action);
+          });
+          button.addEventListener('keyup', event => {
+            if (event.key !== ' ' && event.key !== 'Enter') return;
+            event.preventDefault();
+            this.release('key:' + action);
+          });
+          button.addEventListener('blur', () => this.release('key:' + action));
+        }
+      }
+      bind_input(callback) {
+        this.release_all();
+        this.callback = callback;
+        this.render();
+      }
+      set_touch_enabled(value) {
+        this.release_all();
+        this.touchEnabled = value;
+        this.render();
+      }
+      set_mode(mode) {
+        this.release_all();
+        this.mode = mode;
+        this.render();
+      }
+      allowed(action) {
+        return this.touchEnabled && this.callback && (this.mode === 'play' || (this.mode === 'pause' && action === 'pause'));
+      }
+      press(pointer, action) {
+        if (!this.buttons[action] || !this.allowed(action) || this.pointers.has(pointer)) return false;
+        const alreadyHeld = [...this.pointers.values()].includes(action);
+        this.pointers.set(pointer, action);
+        this.buttons[action].classList.toggle('is-held', true);
+        if (!alreadyHeld) this.callback(action, true);
+        return true;
+      }
+      release(pointer) {
+        const action = this.pointers.get(pointer);
+        if (!action) return;
+        this.pointers.delete(pointer);
+        if (![...this.pointers.values()].includes(action)) {
+          this.buttons[action].classList.toggle('is-held', false);
+          this.callback(action, false);
+        }
+      }
+      release_all() {
+        for (const pointer of [...this.pointers.keys()]) this.release(pointer);
+      }
+      render() {
+        this.dock.hidden = !this.touchEnabled || !['play', 'pause'].includes(this.mode);
+        for (const [action, button] of Object.entries(this.buttons)) button.disabled = !this.allowed(action);
+        this.buttons.pause.textContent = this.mode === 'pause' ? 'Resume' : 'Pause';
+        this.caption.textContent = this.mode === 'pause' ? 'A moment to yourself. Tap Resume to keep walking.' : 'Hold to move. Tap Jump. Echo leaves your past.';
+        this.on_change();
+      }
+    }
+    function fitCanvas(width, height, touch) {
+      let scale = Math.max(0, Math.min(width / 480, height / 270));
+      if (!touch && scale >= 1) scale = Math.floor(scale);
+      return { width: 480 * scale, height: 270 * scale };
+    }
+    function packAssetUrl(name, version) {
+      // Direct editor exports lack the build script's hash; still fetch fresh.
+      const token = version.startsWith('__') ? String(Date.now()) : version;
+      return name + '?v=' + encodeURIComponent(token);
+    }
+    globalThis.YesterselfMobile = { TouchControls, fitCanvas, packAssetUrl };
+  })();
+  </script>
+  <script src="$GODOT_URL"></script>
+  <script>
+  (() => {
+    const canvas = document.getElementById('canvas');
+    const stage = document.getElementById('game');
+    const buttons = Object.fromEntries([...document.querySelectorAll('[data-action]')].map(button => [button.dataset.action, button]));
+    const controls = new YesterselfMobile.TouchControls(buttons, document.getElementById('touch-dock'), document.getElementById('touch-caption'));
+    function fit() {
+      const size = YesterselfMobile.fitCanvas(stage.clientWidth, stage.clientHeight, controls.touchEnabled);
+      canvas.style.width = size.width + 'px';
+      canvas.style.height = size.height + 'px';
+    }
+    controls.on_change = fit;
+    const coarsePointer = window.matchMedia('(any-pointer: coarse)');
+    function resize() {
+      const touch = coarsePointer.matches || navigator.maxTouchPoints > 0 || window.innerWidth <= 900;
+      document.body.classList.toggle('touch', touch);
+      controls.set_touch_enabled(touch);
+      fit();
+    }
+    window.yesterselfTouch = {
+      bind_input: callback => controls.bind_input(callback),
+      set_mode: mode => controls.set_mode(mode)
+    };
+    window.addEventListener('resize', resize);
+    window.visualViewport?.addEventListener('resize', resize);
+    coarsePointer.addEventListener('change', resize);
+    window.addEventListener('blur', () => controls.release_all());
+    document.addEventListener('visibilitychange', () => { if (document.hidden) controls.release_all(); });
+    document.addEventListener('pointerdown', event => {
+      if (event.pointerType === 'touch' && !controls.touchEnabled) {
+        document.body.classList.add('touch');
+        controls.set_touch_enabled(true);
+      }
+    }, { capture: true });
+    new ResizeObserver(fit).observe(stage);
+    resize();
+
+    const config = $GODOT_CONFIG;
+    const loading = document.getElementById('loading');
+    const text = document.getElementById('loading-text');
+    const progress = document.getElementById('progress');
+    const missing = Engine.getMissingFeatures({ threads: false });
+    function failure(error) {
+      text.textContent = error instanceof Error ? error.message : String(error);
+      progress.hidden = true;
+      loading.hidden = false;
+    }
+    if (missing.length) {
+      failure('This browser is missing features needed to play: ' + missing.join(', '));
+      return;
+    }
+    const packName = config.executable + '.pck';
+    const packUrl = YesterselfMobile.packAssetUrl(packName, '__YESTERSELF_PACK_HASH__');
+    config.fileSizes[packUrl] = config.fileSizes[packName];
+    config.canvas = canvas;
+    config.canvasResizePolicy = 0;
+    config.args = ['--main-pack', packName, ...config.args];
+    config.onProgress = (current, total) => {
+      if (total > 0) { progress.max = total; progress.value = current; }
+    };
+    const engine = new Engine(config);
+    Promise.all([engine.init(config.executable), engine.preloadFile(packUrl, packName)])
+      .then(() => engine.start()).then(() => { loading.hidden = true; fit(); }, failure);
+  })();
+  </script>
+</body>
+</html>

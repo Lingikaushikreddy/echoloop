@@ -31,6 +31,15 @@ jobs:
       - name: Run tests
         run: GODOT="$HOME/godot/godot" scripts/test.sh
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test browser touch input and package versioning
+        run: |
+          node --test tests/web/test_touch_controls.mjs
+          python3 tests/web/test_export_shell.py
+
       - name: Export web build
         run: GODOT="$HOME/godot/godot" scripts/export_web.sh
 

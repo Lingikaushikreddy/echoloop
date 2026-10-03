@@ -4,6 +4,9 @@ extends RefCounted
 ## While the game runs, the same actions appear in Project Settings → Input Map.
 
 const DEADZONE := 0.3
+## Dedicated virtual keys keep a touch release from releasing a physical key.
+const TOUCH_KEYS := {&"move_left": KEY_F13, &"move_right": KEY_F14, &"jump": KEY_F15,
+	&"commit": KEY_F16, &"retry": KEY_F17, &"undo": KEY_F18, &"pause": KEY_F19}
 
 
 static func install() -> void:
@@ -23,6 +26,8 @@ static func _action(action: StringName, events: Array) -> void:
 	InputMap.add_action(action, DEADZONE)
 	for event: InputEvent in events:
 		InputMap.action_add_event(action, event)
+	if TOUCH_KEYS.has(action):
+		InputMap.action_add_event(action, _key(TOUCH_KEYS[action]))
 
 
 static func _key(code: Key) -> InputEventKey:

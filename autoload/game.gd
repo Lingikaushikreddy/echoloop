@@ -19,6 +19,10 @@ var store: ProgressStore
 var menu_view := "home"
 var trial_best: Dictionary = {}
 var settings: Dictionary = ProgressStore.defaults().settings
+var web_controls_mode := "menu"
+var _web_controls: JavaScriptObject
+var _web_input_callback: JavaScriptObject
+var _held_web_actions := {}
 
 
 ## Saved fewest echoes used to open the summit, or -1 before the first clear.
@@ -36,6 +40,46 @@ func _ready() -> void:
 	found_island = store.data.found_island
 	trial_best = store.data.trial_best.duplicate()
 	settings = store.data.settings.duplicate()
+	if OS.has_feature("web"):
+		_web_controls = JavaScriptBridge.get_interface("yesterselfTouch")
+		if _web_controls != null:
+			_web_input_callback = JavaScriptBridge.create_callback(_on_web_input)
+			_web_controls.bind_input(_web_input_callback)
+			_web_controls.set_mode(web_controls_mode)
+
+
+## The browser dock feeds the same input actions as keyboard/gamepad.
+func _on_web_input(args: Array) -> void:
+	if args.size() != 2 or not args[0] is String or not args[1] is bool:
+		return
+	var action := StringName(args[0])
+	var pressed: bool = args[1]
+	if not InputActions.TOUCH_KEYS.has(action):
+		return
+	if pressed:
+		if web_controls_mode != "play" and not (web_controls_mode == "pause" and action == &"pause"):
+			return
+		if _held_web_actions.has(action):
+			return
+		_held_web_actions[action] = true
+	else:
+		if not _held_web_actions.has(action):
+			return
+		_held_web_actions.erase(action)
+	var event := InputEventKey.new()
+	event.physical_keycode = InputActions.TOUCH_KEYS[action]
+	event.pressed = pressed
+	Input.parse_input_event(event)
+
+
+func set_web_controls_mode(mode: String) -> void:
+	if not mode in ["menu", "play", "pause", "results"]:
+		return
+	for action in _held_web_actions.keys():
+		_on_web_input([String(action), false])
+	web_controls_mode = mode
+	if _web_controls != null:
+		_web_controls.set_mode(mode)
 
 
 ## Remembers a Clocklands clear so the next walk has something to beat.
@@ -91,5 +135,6 @@ func goto_next_level() -> void:
 
 
 func open_scene(path: String) -> void:
+	set_web_controls_mode("menu")
 	get_tree().paused = false
 	get_tree().change_scene_to_file.call_deferred(path)

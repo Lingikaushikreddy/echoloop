@@ -10,6 +10,8 @@ The title screen also opens **six Echo Trials**. In a room, R rewinds time and t
 
 The demo includes a title and trial picker, pause and controls, saved records, replay timelines, layered scenery, and original sound effects. Settings control sound, echo paths, and reduced particles and shake. Escape or Start pauses; losing focus pauses automatically.
 
+**On a phone:** start the Clocklands or a trial to reveal the touch controls below the game. Hold Left/Right and tap or hold Jump with another finger. Echo plants your trail; Retry returns you to the start; Undo forgets the newest echo. Pause becomes Resume while paused. Both orientations fit the full game; landscape gives you a larger view. Touch controls also appear in narrow browser windows.
+
 | Trial | What your past makes possible | Par echoes |
 |---|---|---|
 | The Ground Floor | Learn the jump and cross the gap | 0 |
@@ -54,6 +56,8 @@ godot --path . res://levels/level_04.tscn
 ```bash
 scripts/test.sh                       # all unit, physics and level-solution tests
 scripts/test.sh -gselect=test_player  # one file
+node --test tests/web/test_touch_controls.mjs  # touch gestures and responsive layout
+python3 tests/web/test_export_shell.py        # package versions prevent stale updates
 ```
 
 Every room has a solution test that plays a scripted run through the real level, plus a test guarding its intended trick. The Clocklands have a steered run that collects all road stars and a test that the summit cannot be jumped alone. Save and settings tests use temporary files and cannot overwrite player progress. The runner fails if any test script does not load, because GUT on its own would silently skip it.
@@ -66,7 +70,9 @@ scripts/export_web.sh
 python3 -m http.server 8090 --directory build/web   # then open http://localhost:8090
 ```
 
-`fetch_web_templates.py` downloads only the ~20 MB of web templates instead of Godot's full 1.3 GB template archive. CI builds the same web version on every push and attaches it as the `yesterself-web` artifact.
+`fetch_web_templates.py` downloads only the ~20 MB of web templates instead of Godot's full 1.3 GB template archive. CI builds the same web version on main-branch pushes, pull requests, and manual runs, and attaches it as the `yesterself-web` artifact.
+
+The custom shell in `web/shell.html` keeps touch buttons outside the game image, respects phone safe areas, and fits the 480 by 270 canvas without cropping. The export script versions the game package by its contents, so cached desktop builds cannot hide new mobile controls. Browser tests need Node.js 22 or newer; the package-version test uses Python 3.
 
 ## The Clocklands
 

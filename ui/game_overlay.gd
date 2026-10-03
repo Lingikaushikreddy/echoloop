@@ -89,6 +89,7 @@ func pause_game() -> void:
 		return
 	get_tree().paused = true
 	mode = "pause"
+	Game.set_web_controls_mode("pause")
 	_clear()
 	_body.add_child(DemoTheme.label("A moment to yourself", 19, DemoTheme.GOLD))
 	_body.add_child(DemoTheme.label("Move A/D or arrows  •  Jump Space / W / Up\nR leaves an echo  •  T retries  •  Backspace undoes\nGamepad: stick / A jump / X echo / Y retry / LB undo", 9, DemoTheme.MUTED))
@@ -101,6 +102,7 @@ func pause_game() -> void:
 func resume_game() -> void:
 	get_tree().paused = false
 	mode = "closed"
+	Game.set_web_controls_mode("play")
 	_screen.hide()
 	panel.hide()
 
@@ -124,6 +126,7 @@ func show_settings() -> void:
 func show_results(echoes: int, best: int, par: int) -> void:
 	get_tree().paused = false
 	mode = "results"
+	Game.set_web_controls_mode("results")
 	_clear()
 	_body.add_child(DemoTheme.label("The Clocklands remember" if scene is OpenWorld else "A room well remembered", 19, DemoTheme.GOLD))
 	_body.add_child(DemoTheme.label("Echoes used: %d    Best: %d" % [echoes, best], 13))

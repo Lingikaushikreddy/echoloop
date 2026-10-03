@@ -75,3 +75,15 @@ func test_invalid_trial_counts_and_boolean_settings_are_rejected() -> void:
 	bad.settings.muted = "false"
 	_write(JSON.stringify(bad))
 	assert_false(store.load_file())
+
+
+func test_wrong_version_types_fall_back_without_script_errors() -> void:
+	var store = _store()
+	if store == null: return
+	for version: Variant in [null, true, false, "1", [], {}, 1.5]:
+		var bad: Dictionary = store.defaults()
+		bad.version = version
+		bad.best_echoes = 2
+		_write(JSON.stringify(bad))
+		assert_false(store.load_file(), "reject version " + str(version))
+		assert_eq(store.data, store.defaults(), "reject the whole candidate")

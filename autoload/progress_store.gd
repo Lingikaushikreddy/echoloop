@@ -55,7 +55,7 @@ static func _valid(value: Variant) -> bool:
 	if not value is Dictionary:
 		return false
 	var candidate: Dictionary = value
-	if candidate.get("version") != 1 or not _integer_between(candidate.get("best_echoes"), -1, 4):
+	if not _integer_between(candidate.get("version"), 1, 1) or not _integer_between(candidate.get("best_echoes"), -1, 4):
 		return false
 	if not candidate.get("found_island") is bool or not candidate.get("trial_best") is Dictionary or not candidate.get("settings") is Dictionary:
 		return false

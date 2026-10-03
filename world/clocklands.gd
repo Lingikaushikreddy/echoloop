@@ -44,6 +44,7 @@ var level_map: LevelMap
 var anchor_point := Vector2.ZERO
 var is_complete := false
 var effects: WorldEffects
+var overlay: GameOverlay
 var found_stars: Array[Vector2i] = []
 
 var _death_ticks_left := -1
@@ -98,6 +99,8 @@ func _ready() -> void:
 	_build_terrain()
 	_build_props()
 	effects = WorldEffects.attach(self, player)
+	overlay = GameOverlay.attach(self)
+	hud.pause_requested.connect(overlay.pause_game)
 	trails = Node2D.new()
 	trails.name = "Trails"
 	trails.z_index = 2
@@ -116,6 +119,8 @@ func _ready() -> void:
 	_refresh_stars()
 	_seen_regions[_region_at(level_map.spawn.x).title] = true
 	_update_region()
+	Game.settings_changed.connect(_apply_display_settings)
+	_apply_display_settings()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -254,6 +259,10 @@ func _draw_trail(recording: EchoRecording) -> Line2D:
 	return line
 
 
+func _apply_display_settings() -> void:
+	trails.visible = bool(Game.settings.echo_paths)
+
+
 func _maybe_mention_island() -> void:
 	if _mentioned_island or level_map.secrets.is_empty():
 		return
@@ -318,6 +327,7 @@ func _on_ticked(_tick: int) -> void:
 		var age := int(_ages.get(echo, 0))
 		echo.apply_tick(age)
 		_ages[echo] = age + 1
+	hud.set_replays(echoes_root.get_children(), _ages, player.recorder.recording.frame_count())
 	camera.position = player.position
 	if _death_ticks_left > 0:
 		_death_ticks_left -= 1
@@ -359,6 +369,7 @@ func _on_exit_reached() -> void:
 		ending += "The island is still waiting."
 	ending += " Enter walks it again."
 	hud.show_message(ending, true)
+	overlay.show_results(echoes_used, Game.best_echoes, 2)
 	completed.emit(echoes_used)
 
 

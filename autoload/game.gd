@@ -16,6 +16,7 @@ const TRIAL_PAR := [0, 1, 1, 1, 1, 2]
 signal settings_changed
 
 var store: ProgressStore
+var menu_view := "home"
 var trial_best: Dictionary = {}
 var settings: Dictionary = ProgressStore.defaults().settings
 

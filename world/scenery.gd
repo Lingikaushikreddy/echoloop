@@ -13,7 +13,8 @@ func configure(_size: Vector2, is_chamber: bool) -> void:
 
 
 func _process(delta: float) -> void:
-	_time += delta
+	if not bool(Game.settings.reduced_effects):
+		_time += delta
 	var camera := get_viewport().get_camera_2d()
 	if camera != null:
 		var center := camera.get_screen_center_position()
@@ -35,7 +36,7 @@ func _draw() -> void:
 		_tower(Vector2(x, 160), i == 1)
 	_hills(0.28, 216, Color("426d79"), 36)
 	_hills(0.43, 247, Color("36546b"), 22)
-	for i in 13:
+	for i in (0 if bool(Game.settings.reduced_effects) else 13):
 		var x := fposmod(float(i * 83) - _camera_x * 0.35, 480.0)
 		var y := 130.0 + float((i * 31) % 105) + sin(_time * 0.6 + i) * 4.0
 		draw_rect(Rect2(x, y, 1, 1), Color(0.97, 0.89, 0.64, 0.45))

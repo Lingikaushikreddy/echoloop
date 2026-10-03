@@ -72,3 +72,20 @@ func test_touch_jump_moves_the_player_and_world_retry_clears_held_input() -> voi
 	assert_false(Input.is_action_pressed(&"move_right"))
 	assert_false(Input.is_action_pressed(&"jump"))
 	assert_almost_eq(world.player.position.x, world.anchor_point.x, 0.1)
+
+
+func test_a_deferred_retry_preserves_pause_and_rejects_touch_movement() -> void:
+	var level: Level = preload("res://levels/level_02.tscn").instantiate()
+	add_child_autofree(level)
+	await wait_physics_frames(4)
+	level.retry()
+	level.overlay.pause_game()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_true(get_tree().paused)
+	assert_eq(level.overlay.mode, "pause")
+	assert_eq(Game.web_controls_mode, "pause", "a queued retry must keep Resume available")
+	Game._on_web_input(["move_right", true])
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_false(Input.is_action_pressed(&"move_right"), "movement stays disabled while paused")

@@ -37,5 +37,11 @@ Direct editor exports use a fresh timestamp when no build hash is available.
 - Browser checks cover portrait and landscape layouts and live game actions.
   These checks use resized desktop Chrome, not physical phone hardware.
 
+The final review caught two edge cases: a deferred retry could overwrite the
+paused dock mode, and landscape windows below 530 pixels could clip Jump.
+Restart now preserves pause mode; the single row layout starts at 600 pixels.
+A regression test covers retry/pause ordering, and browser geometry checks
+cover the narrow landscape layout.
+
 Reference: [Godot custom web shells](https://docs.godotengine.org/en/stable/tutorials/platform/web/customizing_html5_shell.html)
 and [JavaScriptBridge](https://docs.godotengine.org/en/stable/classes/class_javascriptbridge.html).

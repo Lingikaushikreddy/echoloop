@@ -68,14 +68,14 @@ func _build_trials() -> void:
 		var suffix := ""
 		if Game.trial_best.has(key):
 			var best := int(Game.trial_best[key])
-			suffix = "   %s %d" % ["★" if best <= Game.TRIAL_PAR[i] else "•", best]
+			suffix = "   %s %d" % ["PAR" if best <= Game.TRIAL_PAR[i] else "Best", best]
 		var path: String = Game.LEVELS[i]
 		var button := DemoTheme.button("%d. %s%s" % [i + 1, Game.TRIAL_NAMES[i], suffix], func() -> void: _play(path))
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		_trials.add_child(button)
 		trial_buttons.append(button)
 	_add_button(_trials, "trial_back", "Back", show_home)
-	_trials.add_child(DemoTheme.label("★ Finish with par echoes for a medal.", 8, DemoTheme.MUTED))
+	_trials.add_child(DemoTheme.label("PAR = medal for finishing with par echoes.", 8, DemoTheme.MUTED))
 
 
 func _build_settings() -> void:

@@ -59,3 +59,17 @@ func test_leaving_overlay_clears_pause_and_results_offer_retry() -> void:
 	overlay.queue_free()
 	assert_false(get_tree().paused, "a removed game overlay must not strand the tree paused")
 	await wait_process_frames(2)
+
+
+func test_par_medal_uses_readable_web_font_text() -> void:
+	var old_best := Game.trial_best.duplicate()
+	Game.trial_best = {"level_01": 0}
+	var title := TitleScreen.new()
+	add_child_autofree(title)
+	Game.trial_best = old_best
+	assert_true(title.trial_buttons[0].text.contains("PAR"), "medals need a badge supported by the web font")
+	var room: Level = preload("res://levels/level_01.tscn").instantiate()
+	add_child_autofree(room)
+	room.overlay.show_results(0, 0, 0)
+	var detail: Label = room.overlay._body.get_child(2)
+	assert_true(detail.text.begins_with("Par medal earned:"))

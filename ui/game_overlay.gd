@@ -127,7 +127,7 @@ func show_results(echoes: int, best: int, par: int) -> void:
 	_clear()
 	_body.add_child(DemoTheme.label("The Clocklands remember" if scene is OpenWorld else "A room well remembered", 19, DemoTheme.GOLD))
 	_body.add_child(DemoTheme.label("Echoes used: %d    Best: %d" % [echoes, best], 13))
-	var detail := "★ Par met: %d echoes" % par if echoes <= par else "A lighter path awaits. Par: %d echoes." % par
+	var detail := "Par medal earned: %d echoes" % par if echoes <= par else "A lighter path awaits. Par: %d echoes." % par
 	if scene is OpenWorld:
 		detail = "Island secret found. A little of you stayed there." if (scene as OpenWorld).secret_found() else "The island is still waiting above the meadow."
 	_body.add_child(DemoTheme.label(detail, 10, DemoTheme.MUTED))

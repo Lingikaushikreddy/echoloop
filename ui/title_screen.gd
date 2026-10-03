@@ -66,7 +66,7 @@ func _add_button(parent: Container, key: String, text: String, action: Callable)
 
 func _build_trials() -> void:
 	_trials = VBoxContainer.new()
-	_trials.add_theme_constant_override("separation", 4)
+	_trials.add_theme_constant_override("separation", 3)
 	_trials.position = Vector2(270, 17)
 	_trials.size.x = 191
 	add_child(_trials)
@@ -93,7 +93,7 @@ func _build_trials() -> void:
 
 
 func _describe_trial(index: int) -> void:
-	_trial_hint.text = "%s Par medal: %d." % [TRIAL_HINTS[index], Game.TRIAL_PAR[index]]
+	_trial_hint.text = "%s\nPar medal: %d echoes." % [TRIAL_HINTS[index], Game.TRIAL_PAR[index]]
 
 
 func _build_settings() -> void:

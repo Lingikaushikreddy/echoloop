@@ -42,6 +42,7 @@ func _capture() -> void:
 	var title: Node = await _swap("res://ui/title_screen.tscn")
 	await _save("title")
 	title.show_trials()
+	title.trial_buttons[4].grab_focus()
 	await _save("trials")
 	title.show_settings()
 	await _save("settings")

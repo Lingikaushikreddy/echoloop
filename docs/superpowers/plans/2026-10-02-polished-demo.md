@@ -93,4 +93,11 @@ assert_false(LevelMap.parse("S1E").is_valid())
 - [x] Run `scripts/export_web.sh`; expect HTML, JS, WASM, and PCK generated.
 - [x] Serve `build/web` locally and inspect startup/play/menu flow in browser.
 - [x] Update feature/controls docs and learning exercises; save representative screenshots.
-- [ ] Request one independent whole-branch review, address meaningful findings, rerun affected checks, and commit the finished upgrade.
+- [x] Request one independent whole-branch review, address meaningful findings, rerun affected checks, and commit the finished upgrade.
+
+## Delivery evidence
+
+All 145 tests and 507 assertions pass. The final web export succeeds, and
+Chrome checks cover title/play/trials, jump/echo, pause/retry/menu, and saved
+settings across reload. See `docs/superpowers/reviews/2026-10-02-polished-demo-review.md`
+for findings and resolutions. Source is retained on `codex/clocklands-demo`.

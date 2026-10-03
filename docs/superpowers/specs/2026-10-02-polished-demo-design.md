@@ -1,7 +1,7 @@
 # Yesterself: polished indie demo
 
 Date: 2026-10-02
-Status: approved by the owner on 2026-10-02; implementation in progress.
+Status: approved by the owner and implemented on 2026-10-02; locally verified and reviewed.
 
 ## Intent and scope
 

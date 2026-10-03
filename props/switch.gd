@@ -27,7 +27,18 @@ func _physics_process(_delta: float) -> void:
 	if _skip_readings > 0:
 		_skip_readings -= 1
 		return
-	_set_pressed(has_overlapping_bodies())
+	_set_pressed(_has_solid_occupant())
+
+
+func _has_solid_occupant() -> bool:
+	# Godot can retain an unmoving body in its overlap cache after its layer is
+	# cleared. Read its current state so a shattered past cannot hold a plate.
+	for body in get_overlapping_bodies():
+		if body is Echo and (body.ghost or body.is_shattered):
+			continue
+		if body is CollisionObject2D and (body.collision_layer & collision_mask) != 0:
+			return true
+	return false
 
 
 ## Silent on purpose: emitting here would make a HOLD door "close" on the bodies still

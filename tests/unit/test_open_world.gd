@@ -142,6 +142,18 @@ func test_a_planted_echo_draws_a_trail() -> void:
 	assert_eq(world.trails.get_child_count(), 0)
 
 
+func test_hidden_paths_can_be_enabled_after_an_echo_is_planted() -> void:
+	await _boot()
+	var previous: bool = Game.settings.echo_paths
+	Game.update_setting("echo_paths", false)
+	assert_true(world.plant_echo())
+	var line: Line2D = world.trails.get_child(0)
+	assert_false(line.is_visible_in_tree())
+	Game.update_setting("echo_paths", true)
+	assert_true(line.is_visible_in_tree(), "enabling paths should reveal an echo planted while paths were hidden")
+	Game.update_setting("echo_paths", previous)
+
+
 func test_the_island_asks_for_two_climbs() -> void:
 	await _boot()
 	var map := world.level_map

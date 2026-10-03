@@ -19,10 +19,17 @@ const KILL_MARGIN := 36.0
 ## Letters of doors that stay open once triggered, for example "b".
 @export var latch_doors := ""
 @export_multiline var map := ""
+@export var saw_travel := Vector2(0, -72)
+@export_range(60, 600) var saw_period := 240
+@export var saw_phase := 0
+@export var lift_travel := Vector2(0, -90)
+@export_range(30, 300) var lift_duration := 120
 
 var level_map: LevelMap
 var spawn_point := Vector2.ZERO
 var is_complete := false
+var effects: WorldEffects
+var overlay: GameOverlay
 
 var _death_ticks_left := -1
 var _restart_queued := false
@@ -43,6 +50,12 @@ func _ready() -> void:
 		return
 	_build_terrain()
 	_build_props()
+	var scenery := ClocklandsScenery.new()
+	scenery.configure(Vector2(level_map.size) * LevelMap.TILE, true)
+	add_child(scenery)
+	effects = WorldEffects.attach(self, player)
+	overlay = GameOverlay.attach(self)
+	hud.pause_requested.connect(overlay.pause_game)
 	spawn_point = LevelMap.cell_floor(level_map.spawn)
 	player.kill_y = level_map.size.y * LevelMap.TILE + KILL_MARGIN
 	player.died.connect(_on_player_died)
@@ -78,6 +91,7 @@ func commit_attempt() -> bool:
 			hud.show_message("Echo limit: Undo (Backspace) or Retry (T)")
 		return false
 	_queue_restart()
+	effects.burst(player.position, Color("80edf0"), "plant")
 	return true
 
 
@@ -93,6 +107,7 @@ func undo_echo() -> bool:
 	if is_complete or not loop.undo():
 		return false
 	_queue_restart()
+	effects.burst(player.position, Color("80edf0"), "undo")
 	return true
 
 
@@ -121,14 +136,24 @@ func _restart() -> void:
 		var echo: Echo = ECHO_SCENE.instantiate()
 		echo.setup(loop.recordings[i], i, player)
 		echoes_root.add_child(echo)
+		echo.shattered.connect(func(body: Echo) -> void:
+			effects.burst(body.position, Color("80edf0"), "shatter")
+			hud.show_message("Paradox: an echo shattered. Retry brings it back."))
 	player.recorder.start()
 	loop.reset()
 	hud.set_time(0)
 
 
 func _on_ticked(tick: int) -> void:
+	for prop in props.get_children():
+		if prop is ClockworkHazard or prop is ClockworkLift:
+			prop.apply_tick(tick)
 	for echo: Echo in echoes_root.get_children():
 		echo.apply_tick(tick)
+	var ages := {}
+	for echo in echoes_root.get_children():
+		ages[echo] = tick
+	hud.set_replays(echoes_root.get_children(), ages, player.recorder.recording.frame_count())
 	camera.position = player.position
 	hud.set_time(tick)
 	if _death_ticks_left > 0:
@@ -148,7 +173,11 @@ func _on_exit_reached() -> void:
 		return
 	is_complete = true
 	player.active = false
+	effects.burst(player.position, Color("f4cf75"), "clear")
 	hud.show_message("Room clear!  Press Enter for the next room.", true)
+	Game.note_trial(scene_file_path, loop.recordings.size())
+	var key := scene_file_path.get_file().get_basename()
+	overlay.show_results(loop.recordings.size(), int(Game.trial_best.get(key, loop.recordings.size())), par_echoes)
 	completed.emit(loop.recordings.size())
 
 
@@ -174,6 +203,19 @@ func _build_props() -> void:
 			door.position = LevelMap.cell_center(cell)
 			props.add_child(door)
 			(switch_nodes[letter] as Switch).pressed_changed.connect(door.on_switch_changed)
+	for cell in level_map.spikes:
+		var hazard := ClockworkHazard.new()
+		hazard.setup(LevelMap.cell_floor(cell), Vector2.ZERO, 0, 0)
+		props.add_child(hazard)
+	for cell in level_map.saws:
+		var hazard := ClockworkHazard.new()
+		hazard.setup(LevelMap.cell_center(cell), saw_travel, saw_period, saw_phase)
+		props.add_child(hazard)
+	for letter: String in level_map.lifts:
+		var lift := ClockworkLift.new()
+		lift.setup(LevelMap.cell_floor(level_map.lifts[letter]), lift_travel, lift_duration)
+		props.add_child(lift)
+		(switch_nodes[letter] as Switch).pressed_changed.connect(lift.on_switch_changed)
 	var exit: ExitFlag = EXIT_SCENE.instantiate()
 	exit.position = LevelMap.cell_floor(level_map.exit)
 	exit.reached.connect(_on_exit_reached)

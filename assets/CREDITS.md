@@ -12,3 +12,13 @@ Files copied unchanged from `kenney_pixel-platformer.zip`
 - `License.txt` → `assets/kenney_pixel_platformer/License.txt`
 
 CC0 does not require credit. It is given anyway: thank you, Kenney.
+
+## Original demo presentation
+
+Clocktower silhouettes, hills, clock faces, saws, lifts, echo marks, and action
+particles are original geometry drawn by this project's GDScript code.
+`effects/sound_bank.gd` synthesizes the jump, landing, echo, star, paradox,
+death, undo, clear, and UI chimes as PCM samples from sine waves and a
+deterministic noise formula. These original visual/audio contributions are
+dedicated to CC0 1.0, as are the generated screenshots' original visual parts.
+Godot's built-in default font is used through its default theme.

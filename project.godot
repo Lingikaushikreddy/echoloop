@@ -7,7 +7,7 @@ config_version=5
 
 config/name="Yesterself"
 config/description="An open-world platformer. Plant your past self in the world and keep walking."
-run/main_scene="res://world/clocklands.tscn"
+run/main_scene="res://ui/title_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]

@@ -53,6 +53,7 @@ func apply_tick(tick: int) -> void:
 	sprite.show_pose(anim, EchoRecording.facing_left_of(frame_flags), tick)
 	if ghost and not overlaps_player():
 		_set_ghost(false)
+	queue_redraw()
 
 
 func overlaps_player() -> bool:
@@ -77,3 +78,10 @@ func _set_ghost(value: bool) -> void:
 	ghost = value
 	collision_layer = 0 if value else ECHO_LAYER_BIT
 	sprite.modulate.a = GHOST_ALPHA if value else SOLID_ALPHA
+	queue_redraw()
+
+
+func _draw() -> void:
+	var color := Color(0.5, 0.93, 0.94, 0.16 if ghost else 0.32)
+	draw_arc(Vector2(0, -11), 15, PI * 0.08, PI * 1.92, 24, color, 1)
+	draw_line(Vector2(-7, 1), Vector2(7, 1), color, 1)

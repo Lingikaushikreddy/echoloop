@@ -32,7 +32,7 @@
 
 **Interfaces:** `ProgressStore.new(path: String)`, `data: Dictionary`, `load_file() -> bool`, `save_file() -> bool`, `defaults() -> Dictionary`. Game exposes `settings: Dictionary`, `trial_best: Dictionary`, `note_trial(path: String, echoes: int)`, `update_setting(key: String, value: Variant)`.
 
-- [ ] Write a resource-existence assertion and round-trip/malformed-version tests before the store exists.
+- [x] Write a resource-existence assertion and round-trip/malformed-version tests before the store exists.
 
 ```gdscript
 assert_true(FileAccess.file_exists("res://autoload/progress_store.gd"))
@@ -40,9 +40,9 @@ assert_true(FileAccess.file_exists("res://autoload/progress_store.gd"))
 # then replace it with malformed JSON and assert defaults and a false result.
 ```
 
-- [ ] Run `scripts/test.sh -gselect=test_progress_store`; expect failure for the missing store.
-- [ ] Implement version 1 data validation, atomic writes, six trial paths, persistent best records/settings, and test-save isolation.
-- [ ] Run the focused test and existing game tests; expect all passing. Commit progress.
+- [x] Run `scripts/test.sh -gselect=test_progress_store`; expect failure for the missing store.
+- [x] Implement version 1 data validation, atomic writes, six trial paths, persistent best records/settings, and test-save isolation.
+- [x] Run the focused test and existing game tests; expect all passing. Commit progress.
 
 ### Task 2: Hazards, lift, and trials
 
@@ -50,17 +50,17 @@ assert_true(FileAccess.file_exists("res://autoload/progress_store.gd"))
 
 **Interfaces:** Map `^` spikes, `O` saw, `1`–`4` lifts linked to `a`–`d`. `ClockworkHazard.setup(at: Vector2, travel: Vector2, period: int, phase: int)`, `apply_tick(tick: int)`, `reset_to_start()`. `ClockworkLift.setup(at: Vector2, travel: Vector2, duration: int)`, `on_switch_changed(pressed: bool)`, `apply_tick(tick: int)`, `reset_to_start()`.
 
-- [ ] Write parser tests and missing-prop assertions. Run focused tests; expect new symbols rejected and props absent.
+- [x] Write parser tests and missing-prop assertions. Run focused tests; expect new symbols rejected and props absent.
 
 ```gdscript
 assert_true(LevelMap.parse("Sa1.O^E").is_valid())
 assert_false(LevelMap.parse("S1E").is_valid())
 ```
 
-- [ ] Add parser storage/validation and props. Use fixed tick motion; hazards poll player/echo overlaps; lift updates before player, with platform-layer collision.
-- [ ] Test real contacts, ghost immunity, repeatable saw paths, lift reset and carrying a real player; expect passing.
-- [ ] Build Pendulum, Counterweight, and Two of Us with text maps and exported motion parameters. Write movement-driven successful/negative routes before finalizing each room.
-- [ ] Run `scripts/test.sh -gselect=test_new_trials`, then full suite; expect all six trials solvable and original routes passing. Commit mechanics.
+- [x] Add parser storage/validation and props. Use fixed tick motion; hazards poll player/echo overlaps; lift updates before player, with platform-layer collision.
+- [x] Test real contacts, ghost immunity, repeatable saw paths, lift reset and carrying a real player; expect passing.
+- [x] Build Pendulum, Counterweight, and Two of Us with text maps and exported motion parameters. Write movement-driven successful/negative routes before finalizing each room.
+- [x] Run `scripts/test.sh -gselect=test_new_trials`, then full suite; expect all six trials solvable and original routes passing. Commit mechanics.
 
 ### Task 3: Scenery and effects
 
@@ -68,10 +68,10 @@ assert_false(LevelMap.parse("S1E").is_valid())
 
 **Interfaces:** `ClocklandsScenery.new()`, `configure(size: Vector2, chamber: bool)`. `WorldEffects.attach(scene: Node2D, player: Player)`, `burst(at: Vector2, color: Color, kind: String)`, `SoundBank.play(kind: String)`.
 
-- [ ] Add a test that attachment connects player landing/jump/death feedback and reduced effects suppresses particles; run and expect missing-resource failure.
-- [ ] Draw layered hills, clocktower landmarks, terrain decorations, stars, and echo trails with camera-relative scenery. Build bounded transient bursts and cached PCM sound effects.
-- [ ] Connect jump/landing/death, plant/undo/shatter/star/clear feedback. Show a recording-cap hint. Keep cosmetic effects outside movement calculations.
-- [ ] Run regression tests; visually inspect Clocklands and a chamber. Commit presentation.
+- [x] Add a test that attachment connects player landing/jump/death feedback and reduced effects suppresses particles; run and expect missing-resource failure.
+- [x] Draw layered hills, clocktower landmarks, terrain decorations, stars, and echo trails with camera-relative scenery. Build bounded transient bursts and cached PCM sound effects.
+- [x] Connect jump/landing/death, plant/undo/shatter/star/clear feedback. Show a recording-cap hint. Keep cosmetic effects outside movement calculations.
+- [x] Run regression tests; visually inspect Clocklands and a chamber. Commit presentation.
 
 ### Task 4: Title, HUD, pause, and results
 
@@ -79,18 +79,18 @@ assert_false(LevelMap.parse("S1E").is_valid())
 
 **Interfaces:** `DemoTheme.build() -> Theme`; `Game.open_scene(path: String)` clears pause and defers navigation. `GameOverlay.attach(scene: Node2D)`, `pause_game()`, `resume_game()`, `show_results(echoes: int, best: int, par: int)`. `Hud.set_replays(echoes: Array, ages: Dictionary, recording_frames: int)`.
 
-- [ ] Add title-entry and pause-state tests, plus restart/menu transitions; run focused tests and expect absent UI failures.
-- [ ] Build a themed title with Play, Trials and Settings; keyboard/gamepad focus, all six room entries, saved best/par medals.
-- [ ] Add an always-processing overlay for pause/settings/results, focus-loss pause and deferred menu/retry transitions. Completion saves records and shows results. Reset pause on exit.
-- [ ] Redesign HUD with a readable header, slots/replay bars, record cap, hints, and a pause button. Honor paths/reduced-effects/audio settings immediately.
-- [ ] Run focused UI tests and full suite; inspect title, trial picker, settings, gameplay, pause, results. Commit UI.
+- [x] Add title-entry and pause-state tests, plus restart/menu transitions; run focused tests and expect absent UI failures.
+- [x] Build a themed title with Play, Trials and Settings; keyboard/gamepad focus, all six room entries, saved best/par medals.
+- [x] Add an always-processing overlay for pause/settings/results, focus-loss pause and deferred menu/retry transitions. Completion saves records and shows results. Reset pause on exit.
+- [x] Redesign HUD with a readable header, slots/replay bars, record cap, hints, and a pause button. Honor paths/reduced-effects/audio settings immediately.
+- [x] Run focused UI tests and full suite; inspect title, trial picker, settings, gameplay, pause, results. Commit UI.
 
 ### Task 5: Delivery
 
 **Files:** `README.md`, `docs/learning/04-clockwork-demo.md`, updated screenshots.
 
-- [ ] Run `scripts/test.sh`; expect all tests passing with no script errors.
-- [ ] Run `scripts/export_web.sh`; expect HTML, JS, WASM, and PCK generated.
-- [ ] Serve `build/web` locally and inspect startup/play/menu flow in browser.
-- [ ] Update feature/controls docs and learning exercises; save representative screenshots.
+- [x] Run `scripts/test.sh`; expect all tests passing with no script errors.
+- [x] Run `scripts/export_web.sh`; expect HTML, JS, WASM, and PCK generated.
+- [x] Serve `build/web` locally and inspect startup/play/menu flow in browser.
+- [x] Update feature/controls docs and learning exercises; save representative screenshots.
 - [ ] Request one independent whole-branch review, address meaningful findings, rerun affected checks, and commit the finished upgrade.

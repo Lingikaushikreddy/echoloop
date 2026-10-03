@@ -1,7 +1,7 @@
 extends Node
 ## Global game state, loaded before any scene (Project Settings → Autoload).
 
-## The original chambers. The game opens on the Clocklands; these stay playable on their own.
+## Six standalone trials, reachable from the title screen.
 const LEVELS: Array[String] = [
 	"res://levels/level_01.tscn",
 	"res://levels/level_02.tscn",
@@ -21,7 +21,7 @@ var trial_best: Dictionary = {}
 var settings: Dictionary = ProgressStore.defaults().settings
 
 
-## Fewest echoes used to open the summit this session, or -1 before the first clear.
+## Saved fewest echoes used to open the summit, or -1 before the first clear.
 var best_echoes := -1
 ## True once a clear included the island star.
 var found_island := false

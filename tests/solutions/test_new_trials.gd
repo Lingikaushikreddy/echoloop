@@ -41,6 +41,34 @@ func test_counterweight_is_out_of_reach_without_a_switch_echo() -> void:
 	assert_false(level.is_complete)
 
 
+func test_shattered_counterweight_echo_releases_plate_and_replays_on_retry() -> void:
+	var level := await play_solution("res://levels/level_05.tscn", [HOLD_A, [{"frames": 20}]])
+	var plate: Switch
+	var lift: ClockworkLift
+	for prop in level.props.get_children():
+		if prop is Switch: plate = prop
+		if prop is ClockworkLift: lift = prop
+	var echo: Echo = level.echoes_root.get_child(0)
+	assert_false(echo.ghost)
+	assert_true(plate.is_pressed)
+	assert_true(lift.engaged)
+	echo.hurt(&"saw")
+	await wait_physics_frames(4)
+	assert_true(echo.is_shattered)
+	assert_false(plate.is_pressed, "a shattered echo must release its pressure plate")
+	assert_false(lift.engaged)
+	await wait_physics_frames(130)
+	assert_eq(lift.position, lift.start, "the released lift must lower to its start")
+	assert_eq(level.echoes_root.get_child_count(), 1, "the shattered echo stays available to the HUD")
+	assert_has(level.hud.timeline.echoes, echo)
+	level.retry()
+	await wait_physics_frames(80)
+	var restored: Echo = level.echoes_root.get_child(0)
+	assert_false(restored.is_shattered)
+	assert_true(plate.is_pressed, "retry restores the recorded plate holder")
+	assert_true(lift.engaged)
+
+
 func test_two_of_us_needs_two_echoes() -> void:
 	if not _exists(6): return
 	var hold_b := [{"frames": 40, "move": 1.0}, {"frames": 20}]

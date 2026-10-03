@@ -73,3 +73,17 @@ func test_par_medal_uses_readable_web_font_text() -> void:
 	room.overlay.show_results(0, 0, 0)
 	var detail: Label = room.overlay._body.get_child(2)
 	assert_true(detail.text.begins_with("Par medal earned:"))
+
+
+func test_trial_focus_explains_its_mechanic_and_par() -> void:
+	var title := TitleScreen.new()
+	add_child_autofree(title)
+	title.show_trials()
+	var hint := title.get("_trial_hint") as Label
+	assert_not_null(hint, "a newcomer should see the selected trial's mechanic")
+	if hint == null: return
+	assert_true(hint.text.contains("Jump the gap"))
+	assert_true(hint.text.contains("Par medal: 0"))
+	title.trial_buttons[4].grab_focus()
+	assert_true(hint.text.contains("Ride the lift"))
+	assert_true(hint.text.contains("Par medal: 1"))

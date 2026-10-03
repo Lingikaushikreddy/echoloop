@@ -2,6 +2,12 @@ class_name TitleScreen
 extends Control
 ## A playable front door: Clocklands adventure, six trials, and remembered records.
 
+const TRIAL_HINTS := [
+	"Jump the gap.", "An echo holds the door open.", "Climb a waiting echo.",
+	"Time the saw; an echo holds the door.", "An echo holds the plate. Ride the lift.",
+	"Two echoes hold two plates open.",
+]
+
 var buttons := {}
 var trial_buttons: Array[Button] = []
 var view := "home"
@@ -10,6 +16,7 @@ var _trials: VBoxContainer
 var _settings: VBoxContainer
 var _sound: SoundBank
 var _footer: Label
+var _trial_hint: Label
 var _time := 0.0
 
 
@@ -59,6 +66,7 @@ func _add_button(parent: Container, key: String, text: String, action: Callable)
 
 func _build_trials() -> void:
 	_trials = VBoxContainer.new()
+	_trials.add_theme_constant_override("separation", 4)
 	_trials.position = Vector2(270, 17)
 	_trials.size.x = 191
 	add_child(_trials)
@@ -72,10 +80,20 @@ func _build_trials() -> void:
 		var path: String = Game.LEVELS[i]
 		var button := DemoTheme.button("%d. %s%s" % [i + 1, Game.TRIAL_NAMES[i], suffix], func() -> void: _play(path))
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.focus_entered.connect(func() -> void: _describe_trial(i))
+		button.mouse_entered.connect(func() -> void: _describe_trial(i))
 		_trials.add_child(button)
 		trial_buttons.append(button)
 	_add_button(_trials, "trial_back", "Back", show_home)
-	_trials.add_child(DemoTheme.label("PAR = medal for finishing with par echoes.", 8, DemoTheme.MUTED))
+	_trial_hint = DemoTheme.label("", 8, DemoTheme.MUTED)
+	_trial_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_trial_hint.custom_minimum_size.y = 22
+	_trials.add_child(_trial_hint)
+	_describe_trial(0)
+
+
+func _describe_trial(index: int) -> void:
+	_trial_hint.text = "%s Par medal: %d." % [TRIAL_HINTS[index], Game.TRIAL_PAR[index]]
 
 
 func _build_settings() -> void:
